@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunkpersonal_site=self.webpackChunkpersonal_site||[]).push([[175],{5175:function(n,e,s){s.r(e);s(2791),s(8337);var r=s(184),t=function(){return(0,r.jsx)("body",{children:(0,r.jsx)("h3",{children:"Basics of Investing"})})};e.default=function(){return console.log("hello"),(0,r.jsx)(r.Fragment,{children:(0,r.jsx)(t,{})})}},8337:function(){}}]);
-//# sourceMappingURL=175.65520800.chunk.js.map
