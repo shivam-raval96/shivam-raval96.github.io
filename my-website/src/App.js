@@ -8,12 +8,10 @@ import Visuals from './components/Visuals';
 import Layout from './components/Layout';
 import './App.css';
 
-const { PUBLIC_URL } = process.env;
-
 
 function App() {
   return (
-    <Router basename={PUBLIC_URL}>
+    <Router basename={process.env.PUBLIC_URL}>
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
