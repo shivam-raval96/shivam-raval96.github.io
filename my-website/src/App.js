@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy }from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/Home';
 import Resume from './components/Resume';
@@ -8,9 +8,12 @@ import Visuals from './components/Visuals';
 import Layout from './components/Layout';
 import './App.css';
 
+const { PUBLIC_URL } = process.env;
+
+
 function App() {
   return (
-    <Router>
+    <Router basename={PUBLIC_URL}>
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
