@@ -80,7 +80,7 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
 </div>
 
 
-<h2>Training an SAE on 2D gaussain data</h2>
+<h2>Training an SAE on two dimensional gaussain data</h2>
 <div class="l-page side"> 
   <div class="slider-container">
     <br/>
@@ -101,7 +101,7 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
   The figures on the side show the original data and the reconstructed data from a trained model for a range of hidden dimensions and the sparsity regularization parameter \( \lambda \). 
   The lines in green
   are the learned feature directions. They are scaled by the activation value averaged across all inputs, ie. \(\sum_{i=1}^M h_i\). 
-  If a feature direction is very small or near zero, that feature is a "dead feature" as it does not help in reconstruction.
+  If a feature direction is very small or near zero, its feature direction will not be prominent on the plot, and that feature is a "dead feature". It does not help in reconstruction.
   <br/>
   <h4>Effect of sparsity regularization </h4>  High values enforces a stronger sparsity constraint on the hidden layer activations, encouraging most neurons to be inactive for any given input. As a result, the feature directions may become more distinct, but also result in many dead features. However, if \( \lambda \) is too high, it may hinder the SAE's ability to reconstruct the data accurately.
  </div>
