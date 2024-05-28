@@ -98,7 +98,8 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
 </div>
 <div class="side">
   Let's train a SAE to reconstruct a gaussian distirbuion \(\mathcal{N}(\mu = 0, \sigma = 1) \text{ in }\) in two dimensions. 
-  The figures on the side show the original data and the reconstructed data from a trained model for a range of hidden dimensions and the sparsity regularization parameter \( \lambda \). 
+  The figures on the side show the original data (in blue) and the reconstructed data (in red) from a trained model for a range of hidden dimensions and the sparsity regularization parameter \( \lambda \). 
+  A datapoint and its reconstruction are connected by a thin grey line, as a visual aid.
   The lines in green
   are the learned feature directions. They are scaled by the activation value averaged across all inputs, ie. \(\sum_{i=1}^M h_i\). 
   If a feature direction is very small or near zero, its feature direction will not be prominent on the plot, and that feature is a "dead feature". It does not help in reconstruction.
