@@ -1,7 +1,7 @@
 
 
 const dValues = [2,3,4,5,6,7,8,9,10,12,14,16,18,20];
-const lValues = [0,0.01,0.008,0.005,0.002,0.001,8e-4,5e-4,1e-4];
+const lValues = [0.01,0.008,0.005,0.002,0.001,8e-4,5e-4,1e-4, 0];
 
 
 function updateImage(distribution) {
