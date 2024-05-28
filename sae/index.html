@@ -89,7 +89,7 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
     <span id="d-value">2</span>
     <br/>
     <label for="l-slider">lambda:</label>
-    <input type="range" id="l-slider" min="0" max="8" step="1" value="0" oninput=updateImage("gaussian2d")>
+    <input type="range" id="l-slider" min="0" max="12" step="1" value="0" oninput=updateImage("gaussian2d")>
     <span id="l-value">1e-2</span>
   </div>
   <div class="image-container">
@@ -137,8 +137,13 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
 </dt-article>
 
 <dt-appendix>
-  <h4>Notes on training the SAE</h4>
-  Model definition:
+  <h4>Notes on training the SAE (the formatting may look weird depening on the screen resolution)</h4>
+  <b>Reproducibility:</b>
+  <dt-code block language="python">
+    np.random.seed(42)
+    torch.manual_seed(42)
+  </dt-code>
+  <b>Model definition:</b>
   <dt-code block language="python">
     class SparseAutoencoder(nn.Module):
     def __init__(self, input_dim, hidden_dim):
@@ -157,9 +162,187 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
         decoded = self.decoder(encoded) + self.b_dec  
         return decoded, encoded
   </dt-code>
+
+  <b>Simplified training function. Note:</b>
   <p>1. All models were trained for 1000 epochs with Adam optimizer with lr = 0.001, with early stopping if the loss does not reduce for 200 epochs.</p>
   <p>2. After each optimizer setp, decoder weights are normized to have unit norm.</p>
-</dt-appendix>
+
+  <dt-code block language="python">
+  def train_sparse_autoencoder(model, dataloader, num_epochs, 
+  lambda_l1, learning_rate=0.001, early_stop = True):
+  
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    patience = 200  
+    best_loss = float('inf')
+    patience_counter = 0
+    
+    for epoch in range(num_epochs):
+        epoch_loss = 0
+        for data in dataloader:
+            inputs = data[0]
+            
+            outputs, encoded = model(inputs)
+            mse_loss = criterion(outputs, inputs)
+            
+            l1_penalty = lambda_l1 * torch.sum(torch.abs(encoded))
+            loss = mse_loss + l1_penalty
+            epoch_loss += loss.item()
+            
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            # Normalize decoder weights to have unit norm
+            with torch.no_grad():
+                decoder_weights = model.decoder.weight.data
+                norms = torch.norm(decoder_weights, dim=1, keepdim=True)
+                model.decoder.weight.data = decoder_weights / norms
+                
+        epoch_loss /= len(dataloader)
+        if early_stop:
+            # Early stopping
+            if epoch_loss < best_loss:
+                best_loss = epoch_loss
+                patience_counter = 0
+            else:
+                patience_counter += 1
+
+            if patience_counter >= patience:
+                print(f'Early stopping at epoch {epoch + 1}, Loss: {epoch_loss:.4f}')
+                break
+
+        
+        if (epoch + 1) % 100 == 0:
+            print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}')
+  </dt-code>
+
+
+  <b>Extract and plot feature directions, original and reconstructed data:</b>
+  <dt-code block language="python">
+  def extract_feature_directions(model):
+      with torch.no_grad():
+          decoder_weights = model.decoder.weight.data
+          encoder_weights = model.encoder.weight.data
+
+          # Each row of the weight matrix is a feature direction
+          feature_directions = decoder_weights.clone()
+          activations = encoder_weights.mean(axis=1).clone().cpu().numpy()
+
+      return feature_directions.T, activations
+
+  def plot_feature_directions(data, reconstructed, feature_directions, activations, title):
+      range_x = [1.1 * data[:, 0].min(), 1.1 * data[:, 0].max()]
+      range_y = [1.1 * data[:, 1].min(), 1.1 * data[:, 1].max()]
+
+      fig = plt.figure(figsize=(6, 6))
+      ax = fig.add_subplot()
+
+      origin = np.array([0, 0, 0])
+      ax.scatter(data[:, 0], data[:, 1], alpha=0.5, s=10, label='Original data')
+      ax.scatter(reconstructed[:, 0], reconstructed[:, 1], alpha=0.5, color='r', s=10, label='Reconstructed data')
+
+      for i in range(len(activations)):
+          ax.plot(
+              [origin[0], feature_directions[i, 0] * activations[i]],
+              [origin[1], feature_directions[i, 1] * activations[i]],
+              color='limegreen', linewidth=3
+          )
+          ax.plot(
+              [origin[0], -feature_directions[i, 0] * activations[i]],
+              [origin[1], -feature_directions[i, 1] * activations[i]],
+              color='limegreen', linewidth=3
+          )
+
+      feature_direction_proxy = plt.Line2D([0], [0], color='limegreen', linewidth=3)
+      handles, labels = ax.get_legend_handles_labels()
+      handles.append(feature_direction_proxy)
+      labels.append('Feature directions')
+      
+      ax.legend(handles=handles, labels=labels, loc="upper right")
+      plt.xticks([])
+      plt.yticks([])
+      plt.gca().set_aspect('equal')
+      plt.xlim(range_x)
+      plt.ylim(range_y)
+      plt.savefig(title)
+      plt.show()
+  </dt-code>
+
+  <b>Generate "Spokes" dataset:</b>
+  <dt-code block language="python">
+      def generate_spokes(num_vectors=3, num_points_per_vector=100, dim=3, scale_range=(0, 1)):
+
+      # Generate random vectors in n dimensions
+      vectors = np.random.randn(num_vectors, dim)
+      
+      # Initialize the list to collect points
+      points = []
+      
+      for v in vectors:
+          # Generate random scaling factors for the points along this vector
+          scales = 2*np.random.random( num_points_per_vector)
+          # Generate points along the vector
+          for a in scales:
+              points.append(a * v)
+      
+      # Convert the list of points to a numpy array
+      points_array = np.array(points)
+      
+      return points_array.astype(np.float32)
+
+  # Example usage
+  data = generate_spokes(num_vectors=5, num_points_per_vector=200, dim=20, scale_range=(0, 5))
+  </dt-code>
+
+  <b>Generate multiple gaussians dataset:</b>
+  <dt-code block language="python">
+      def sample_from_mixture_with_labels(n_points, means, covariances, weights):
+      
+      n_gaussians = len(means)  # The number of Gaussians in the mixture
+      d = means[0].shape[0]  # The dimensionality of the space
+      
+      # Validate inputs
+      assert len(covariances) == n_gaussians, "Each Gaussian must have a covariance matrix."
+      assert len(weights) == n_gaussians, "Each Gaussian must have a mixing weight."
+      assert np.isclose(sum(weights), 1), "The mixing weights must sum to 1."
+      
+      # Choose which Gaussian each point will come from
+      choices = np.random.choice(n_gaussians, size=n_points, p=weights)
+      
+      # Initialize an array to hold the generated samples
+      samples = np.zeros((n_points, d))
+      labels = np.zeros(n_points, dtype=int)
+      
+      # Generate samples from the chosen Gaussians
+      for i in range(n_gaussians):
+          # Number of points to sample from this Gaussian
+          n_samples = np.sum(choices == i)
+          
+          if n_samples > 0:
+              samples[choices == i] = np.random.multivariate_normal(
+                  mean=means[i],
+                  cov=covariances[i],
+                  size=n_samples
+              )
+              labels[choices == i] = i
+      
+      return samples.astype(np.float32), labels
+
+
+  #Example usage:
+  n_points = 1000  # Number of points to generate
+  dim = 20  # Dimensionality of the space
+
+  means = [np.full(dim, -2), np.full(dim, 2),np.full(dim, 0)]  
+  covariances = [np.eye(dim) * 1,  np.eye(dim) * 1,np.eye(dim) * 1] 
+  weights = [0.33,0.33,0.34] 
+  data, labels = sample_from_mixture_with_labels(n_points, means, covariances, weights)
+  </dt-code>
+  
+
+
+  </dt-appendix>
 
 <script type="text/bibliography">
   @article{templeton2024scaling,
