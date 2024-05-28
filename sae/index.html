@@ -165,7 +165,7 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
 
   <b>Simplified training function. Note:</b>
   <p>1. All models were trained for 1000 epochs with Adam optimizer with lr = 0.001, with early stopping if the loss does not reduce for 200 epochs.</p>
-  <p>2. After each optimizer setp, decoder weights are normized to have unit norm.</p>
+  <p>2. After each optimizer step, decoder weights are normized to have unit norm.</p>
 
   <dt-code block language="python">
   def train_sparse_autoencoder(model, dataloader, num_epochs, 
