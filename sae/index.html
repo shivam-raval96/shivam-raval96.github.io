@@ -1,0 +1,182 @@
+<!doctype html>
+<meta charset="utf-8">
+<head>
+    <style>
+        button {
+          background-color: #ffffff;
+          color: rgb(229, 229, 229);
+          border: 1px solid black;
+          padding: 10px 20px;
+          cursor: pointer;
+          border-radius: 5px;
+          margin-top: 20px;
+          margin-left: 20px;
+          font-size: 20px;
+        }
+      
+        button:hover {
+          color: #818181;
+        }
+        .active {
+          color: #000000;
+        }
+      </style>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" ></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="../distill.template.v1.js"></script>
+
+  <script src="train1.js" defer></script>
+
+</head>
+
+<script type="text/front-matter">
+  title: "Toy SAE"
+  description: "An exploration of sparse autoencoders trained on synthetic data"
+  authors:
+  - Shivam Raval: https://shivam-raval96.github.io/
+  affiliations:
+  - Harvard University
+</script>
+
+
+<dt-article >
+  <div class="l-page">
+  <h1>An exploration of sparse autoencoders trained on synthetic data</h1>
+  <h2>[Under construction]</h2>
+  <dt-byline></dt-byline>
+  <p>Anthropic interpertbility team recent showed SAE can extract interpretable 
+    features from Claude 3 Sonnet<dt-cite key="templeton2024scaling"></dt-cite>. Here we want to see 
+    how SAE learn features on some synthetic datasets.
+  </p>
+
+  
+
+  <h2>Saprse Autoencoders as feature exactors</h2>
+  Autoencoders (AE) generally consist of an encoder and a decoder, 
+  where the encoder maps the input to a latent space and the decoder reconstructs the input from this 
+  latent space. One of the key objectives of an autoencoder is to capture the most important features 
+  of the data necessary to reconstruct it. Sparse autoencoders (SAEs) add a sparsity penalty (L1 loss) to the loss function to learn sparse 
+  representations. For our purposes, we want to decompose an input \( x \in \mathbb{R}^d \) into a sparse, linear combination of feature directions:
+  \[
+  x = x_0 + \sum_{i=1}^M f(x)_i d_i,
+  \]
+  where \( d_i \in \mathbb{R}^d \) are \( M \gg d \) are the feature directions, and the sparse coefficients \( f(x) \geq 0 \) are
+   the corresponding feature activations for the directions. Since it is possible to arbitrarily reduce the sparsity loss term without affecting reconstructions, we might have to constrain the norms of the columns of \( W_{\text{dec}} \) 
+  during training, as suggested by previous work from DeepMind<dt-cite key="rajamanoharan2024improving"></dt-cite>. Thus, this will be our model: for some input \(\mathbf{x} \in \mathbb{R}^d\), the encoder is:
+  \[
+  \mathbf{h} = \text{ReLU}(W_{\text{enc}} (x - x_{\text{dec}}) + b_{\text{enc}})
+  \]
+  The decoder reconstructs the input and can be represented as:
+  \[
+  \mathbf{\hat{x}} =  W_{\text{dec}} \mathbf{h} + b_{\text{dec}}
+  \]
+
+  The loss is the sum of the error in reconstruction of the input (typically the MSE) and a sparsity penalty on L1 penalty on the activations \(\mathbf{h} \in \mathbb{R}^M\)
+  \[
+L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \mathbf{\hat{x}}\|^2_2 + \lambda \sum_{i=1}^M |h_i|
+\]  
+</div>
+
+
+<h2>Training an SAE on normallly distributed in 2D</h2>
+<div class="l-page side"> 
+  <div class="slider-container">
+    <br/>
+    <label for="d-slider">Hidden dimension:</label>
+    <input type="range" id="d-slider" min="0" max="13" step="1"  value="2" oninput=updateImage("gaussian2d")>
+    <span id="d-value">2</span>
+    <br/>
+    <label for="l-slider">lambda:</label>
+    <input type="range" id="l-slider" min="0" max="8" step="1" value="0" oninput=updateImage("gaussian2d")>
+    <span id="l-value">1e-2</span>
+  </div>
+  <div class="image-container">
+    <img id="display-img" src="img/gaussian2d/10_0.005.png" width="100%" alt="[Move the slider if loading fails]">
+  </div>
+</div>
+<div class="side">
+  Let's train a SAE to reconstruct a gaussian distirbuion \(\mathcal{N}(\mu = 0, \sigma = 1) \text{ in }\) in two dimensions. 
+  The figures on the side show the original data and the reconstructed data from a trained model for a range of hidden dimensions and the sparsity regularization parameter \( \lambda \). 
+  The lines in green
+  are the learned feature directions. They are scaled by the activation value averaged across all inputs, ie. \(\sum_{i=1}^M h_i\). 
+  If a feature direction is very small or near zero, that feature is a "dead feature" as it does not help in reconstruction.
+  <br/>
+  <h4>Effect of sparsity regularization </h4>  High values enforces a stronger sparsity constraint on the hidden layer activations, encouraging most neurons to be inactive for any given input. As a result, the feature directions may become more distinct, but also result in many dead features. However, if \( \lambda \) is too high, it may hinder the SAE's ability to reconstruct the data accurately.
+ </div>
+
+<script src="slider.js"></script>
+
+<h3>Reconstructing data with high dimensionality </h3>
+<div class="l-page"> 
+  
+<div class="button-bar">
+  <button class="button active" title="Data sampled from a unit normal distirbuion in 20D"  data-distribution="gaussian20d" onclick=updateImage2("gaussian20d")>Gaussian20D</button>
+  <button class="button" data-distribution="3gaussian20d" onclick="updateImage2()">3 Gaussians in 20D </button>
+  <button class="button" data-distribution="5spokes20d" onclick="updateImage2()">5 Spokes in 20D </button>
+
+  <div class="slider-container">
+    <br/>
+    <label for="d-slider2">Hidden dimension:</label>
+    <input type="range" id="d-slider2" min="0" max="9" step="1"  value="2" oninput=updateImage2()>
+    <span id="d-value2">2</span>
+    <br/>
+    <label for="l-slider2">lambda:</label>
+    <input type="range" id="l-slider2" min="0" max="8" step="1" value="0" oninput=updateImage2()>
+    <span id="l-value2">1e-2</span>
+  </div>
+  <div class="image-container2">
+    <img id="display-img2" src="img/gaussian20d/10_0.005.png" width="60%" alt="[Move the slider if loading fails]">
+  </div>
+  <script src="slider2.js"></script>
+
+</div>
+</div>
+
+</dt-article>
+
+<dt-appendix>
+  <h4>Notes on training the SAE</h4>
+  Model definition:
+  <dt-code block language="python">
+    class SparseAutoencoder(nn.Module):
+    def __init__(self, input_dim, hidden_dim):
+        super(SparseAutoencoder, self).__init__()
+        self.encoder = nn.Linear(input_dim, hidden_dim, bias=False)  
+        self.decoder = nn.Linear(hidden_dim, input_dim, bias=False)  
+        self.b_dec = nn.Parameter(torch.zeros(input_dim))  
+        self.b_enc = nn.Parameter(torch.zeros(hidden_dim))  
+    
+    def forward(self, x):
+        # Encoder
+        x_centered = x - self.b_dec 
+        encoded = F.relu(self.encoder(x_centered) + self.b_enc)  
+        
+        # Decoder
+        decoded = self.decoder(encoded) + self.b_dec  
+        return decoded, encoded
+  </dt-code>
+  <p>1. All models were trained for 1000 epochs with Adam optimizer with lr = 0.001, with early stopping if the loss does not reduce for 200 epochs.</p>
+  <p>2. After each optimizer setp, decoder weights are normized to have unit norm.</p>
+</dt-appendix>
+
+<script type="text/bibliography">
+  @article{templeton2024scaling,
+    title={Scaling Monosemanticity: Extracting Interpretable Features from Claude 3 Sonnet},
+    author={Templeton, Adly and Conerly, Tom and Marcus, Jonathan and Lindsey, Jack and Bricken, Trenton and Chen, Brian and Pearce, Adam and Citro, Craig and Ameisen, Emmanuel and Jones, Andy and Cunningham, Hoagy and Turner, Nicholas L and McDougall, Callum and MacDiarmid, Monte and Freeman, C. Daniel and Sumers, Theodore R. and Rees, Edward and Batson, Joshua and Jermyn, Adam and Carter, Shan and Olah, Chris and Henighan, Tom},
+    year={2024},
+    journal={Transformer Circuits Thread},
+    url={https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html}
+ }
+
+ @misc{rajamanoharan2024improving,
+  title={Improving Dictionary Learning with Gated Sparse Autoencoders}, 
+  author={Senthooran Rajamanoharan and Arthur Conmy and Lewis Smith and Tom Lieberum and Vikrant Varma and János Kramár and Rohin Shah and Neel Nanda},
+  year={2024},
+  eprint={2404.16014},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG}
+}
+</script>
+
