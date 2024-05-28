@@ -103,7 +103,7 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
   are the learned feature directions. They are scaled by the activation value averaged across all inputs, ie. \(\sum_{i=1}^M h_i\). 
   If a feature direction is very small or near zero, its feature direction will not be prominent on the plot, and that feature is a "dead feature". It does not help in reconstruction.
   <br/>
-  <h4>Effect of sparsity regularization </h4>  High values enforces a stronger sparsity constraint on the hidden layer activations, encouraging most neurons to be inactive for any given input. As a result, the feature directions may become more distinct, but also result in many dead features. However, if \( \lambda \) is too high, it may hinder the SAE's ability to reconstruct the data accurately.
+  <h4>Effect of sparsity regularization </h4>  High values enforces a stronger sparsity constraint on the hidden layer activations, encouraging most neurons to be inactive for any given input. As a result, the feature directions may become more distinct, but also result in many dead features. However, if \( \lambda \) is too high, it may hinder the SAE's ability to reconstruct the data accurately (not shown here).
  </div>
 
 <script src="slider.js"></script>
