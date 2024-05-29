@@ -70,15 +70,7 @@ document.getElementById('trainButton').addEventListener('click', async () => {
 
 <>
 
-<h3>Reconstructing synthetic datasets</h3>
-<div class="button-bar">
-  <button class="button" data-distribution="" onclick="updateImage()">Gaussian100D</button>
-  <button class="button active" data-distribution="gauss3d_" onclick="updateImage()">Gaussian3D</button>
-  <button class="button" data-distribution="3gauss100d_" onclick="updateImage()">3 Gaussians in 3D </button>
-  <button class="button" data-distribution="circle2d_" onclick="updateImage()">2D Circle </button>
-  <button class="button" data-distribution="spokes_" onclick="updateImage()">5 Spokes in 100D </button>
 
-</div>
 
 
 
