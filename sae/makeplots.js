@@ -1,7 +1,7 @@
 
 let currentData = 'gaussian20d';
-let currentD = 2;
-let currentL = 1;
+let currentD = 20;
+let currentL = 0.01;
 // Initial load
 loadData(currentData);
 updateData()
@@ -173,7 +173,7 @@ function loadData(dataFile) {
                 .style("display", "grid")
                 .style("grid-template-rows", `repeat(${rows}, 25px)`)  // Adjust number of rows based on rows
                 .style("grid-template-columns", `repeat(${columns}, 50px)`);  // Adjust number of columns based on columns
-    
+
             // Initialize heatmap with white cells
             const size = 25;
             const cells = heatmap.selectAll("div")
@@ -204,3 +204,74 @@ function loadData(dataFile) {
     
 }
 
+
+
+
+                // Add legend
+                const legendHeight = 200;
+                const legendWidth = 20;
+                const legendMargin = { top: 25, bottom: 25 };
+                
+                const legendSvg = d3.select("#legend")
+                .append("svg")
+                .attr("width", legendWidth + 150)  // Increased width to provide space for the labels
+                .attr("height", legendHeight + legendMargin.top + legendMargin.bottom)
+                .append("g")
+                .attr("transform", `translate(70,${legendMargin.top})`);  // Translate to center the gradient
+            
+
+                const legendScale = d3.scaleLinear()
+                    .domain([3,0])  // Match the color scale domain
+                    .range([legendHeight, 0]);
+
+                const legendAxis = d3.axisRight(legendScale)
+                    .ticks(6);
+
+
+
+                const gradient = legendSvg.append("defs")
+                    .append("linearGradient")
+                    .attr("id", "gradient")
+                    .attr("x1", "0%")
+                    .attr("y1", "100%")
+                    .attr("x2", "0%")
+                    .attr("y2", "0%");
+
+                gradient.append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", d3.interpolateYlGnBu(1));
+                gradient.append("stop")
+                    .attr("offset", "25%")
+                    .attr("stop-color", d3.interpolateYlGnBu(0.75));
+
+                gradient.append("stop")
+                    .attr("offset", "50%")
+                    .attr("stop-color", d3.interpolateYlGnBu(0.5));
+
+                gradient.append("stop")
+                    .attr("offset", "75%")
+                    .attr("stop-color", d3.interpolateYlGnBu(0.25));
+
+                gradient.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", d3.interpolateYlGnBu(0));
+
+                legendSvg.append("rect")
+                    .attr("width", legendWidth - 1)
+                    .attr("height", legendHeight)
+                    .style("fill", "url(#gradient)");
+
+                // Add labels
+                legendSvg.append("text")
+                    .attr("x", legendWidth / 2)
+                    .attr("y", legendHeight + legendMargin.bottom)
+                    .attr("dy", "-0.3em")
+                    .style("text-anchor", "middle")
+                    .text("Low activation");
+
+                legendSvg.append("text")
+                    .attr("x", legendWidth / 2)
+                    .attr("y", -legendMargin.top)
+                    .attr("dy", "0.7em")
+                    .style("text-anchor", "middle")
+                    .text("High activation");

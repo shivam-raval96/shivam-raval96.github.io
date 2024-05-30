@@ -115,27 +115,30 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
 <button class="button" data="5spokes20d" onclick="updateData()">5 Spokes in 20D </button>
 <button class="button" data="sphere20d" onclick="updateData()">Spherical shell 20D </button>
 <button class="button" data="circle2d" onclick="updateData()">Circle in 2D </button>
+<button class="button" data="swiss3d" onclick="updateData()">Swiss roll in 3D </button>
 <button class="button" data="cube10d" onclick="updateData()">Cube edges in 10D </button>
+<button class="button" data="xor20d" onclick="updateData()">XOR in 20D </button>
 
 
 </div>
 <div class="slider-container">
   <br/>
-  Hover on a point to view the hidden layer activations
+  Hover on a point to view the hidden layer activations 
   <br/>
   <label for="d-slider0">Hidden dimension:</label>
-  <input type="range" id="d-slider0" min="0" max="8" step="1"  value="0" >
+  <input type="range" id="d-slider0" min="0" max="8" step="1"  value="4" >
   <span id="d-value0">2</span>
   <br/>
   <label for="l-slider0">lambda:</label>
-  <input type="range" id="l-slider0" min="0" max="12" step="1" value="0">
+  <input type="range" id="l-slider0" min="0" max="12" step="1" value="4">
   <span id="l-value0">1</span>
 </div>
 
 <div style="display: flex;">
   <div id="scatterplot"></div>
-  <div id="heatmap" class="'heatmap">
-    
+  <div id="heatmap"></div>
+  <div id="legend"></div>
+
   </div>
 </div>
 <script src="makeplots.js"></script>
