@@ -1,5 +1,33 @@
 <!doctype html>
 <meta charset="utf-8">
+<head>
+  <style>
+      button {
+        background-color: #ffffff;
+        color: rgb(229, 229, 229);
+        border: 1px solid black;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 20px;
+        margin-left: 20px;
+        font-size: 20px;
+      }
+    
+      button:hover {
+        color: #818181;
+      }
+      .active {
+        color: #000000;
+      }
+    </style>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js" ></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="../distill.template.v1.js"></script>
+
+</head>
 <script src="../distill.template.v1.js"></script>
 
 <script type="text/front-matter">
@@ -12,22 +40,38 @@
 </script>
 
 <dt-article>
-  <h1>Blog Post 2 Title</h1>
-  <h2>A brief description of Blog Post 2</h2>
-  <dt-byline></dt-byline>
-  <p>This is the first paragraph of the article.</p>
-  <p>We can also cite <dt-cite key="gregor2015draw"></dt-cite> external publications.</p>
+  <dt-line>
+
+  
+  <h1>A primer on t-SNE</h1>
+
+  <h2>Introduction</h2>
+      <h3>Why visualize high dimensional data?</h3>
+      <h3>Background</h3>
+      <p>The goal of any dimensionalilty reduction method is to map data to a low dimensional space, where the points that share some relationship are closer together.
+        Generally, this is the eucledean distane between the points in the original space. Thus, the low dimensional projections would preserve a lot of the stucture in data, which is useful to gain insights about the data.
+        The algorithm is quite involved, so we will break it down into different components. 
+        </p>
+        First, let us suppose we have some data x \(\in R^d \)where d is very high.
+
+      <h4>From distances to probabilities</h4>
+      Distances can vary significantly depending on the scale and distribution of data. So directly using them as a 
+      metric for similarity is inconvenient. Mapping the distances to probabilities essentially normalizes over the difference in distances.
+      This also allows us to choose the size of the neighborhood that the algorithm considers when computing the projections and ensures smootheness in computing gradients.
+      The main tunable parameter in the algorithm is perplexity. It effectively determines the number of neighbors cosidered for a point. Low values emphasize local structures, while larger values emphasize global relationships.
+      \(Perplexity \sim 2^H\), where H(P) is the Shannon entropy of the probability distribution. The end goal is to find a probability distribution for each data point such that the entropy of this distribution matches the log of the perplexity.
+      For a give data point \( x_i \), the similarity to another data point \( x_j \) is given by a conditional probability \( p_{j|i} \), which is the probability that \( x_i \) would pick \( x_j \) as its neighbor 
+      if neighbors were picked in proportion to their probability density under a Gaussian centered at \( x_i \). The width of this Gaussian is determined by the perplexity. Mathematically:
+      \[p_{j|i} = \frac{\exp \left( -\frac{\| x_i - x_j \|^2}{2\sigma_i^2} \right)}{\sum_{k \neq i} \exp \left( -\frac{\| x_i - x_k \|^2}{2\sigma_i^2} \right)}\]
+      The joint probabilities are then symmetrized and normalized.
+
+      <h4>Optimizing for projections</h4>
+    </dt-line>
 </dt-article>
 
 <dt-appendix>
 </dt-appendix>
 
 <script type="text/bibliography">
-  @article{gregor2015draw,
-    title={DRAW: A recurrent neural network for image generation},
-    author={Gregor, Karol and Danihelka, Ivo and Graves, Alex and Rezende, Danilo Jimenez and Wierstra, Daan},
-    journal={arXiv preprint arXiv:1502.04623},
-    year={2015},
-    url={https://arxiv.org/pdf/1502.04623.pdf}
-  }
+
 </script>

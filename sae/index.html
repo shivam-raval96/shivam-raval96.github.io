@@ -26,6 +26,8 @@
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="../distill.template.v1.js"></script>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+
 
   <script src="train1.js" defer></script>
 
@@ -106,28 +108,39 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
 
 <script src="slider.js"></script>
 
-<h3>Reconstructing data with high dimensionality </h3>
-<div class="l-page"> 
-  
-<div class="button-bar">
-  <button class="button active" title="Data sampled from a unit normal distirbuion in 20D"  data-distribution="gaussian20d" onclick=updateImage2("gaussian20d")>Gaussian20D</button>
-  <button class="button" data-distribution="3gaussian20d" onclick="updateImage2()">3 Gaussians in 20D </button>
-  <button class="button" data-distribution="5spokes20d" onclick="updateImage2()">5 Spokes in 20D </button>
+<h2>Reconstructing data with high dimensionality</h2>
+<div class="l-page button-bar"> 
+<button class="button active" title="Data sampled from a unit normal distirbuion in 20D"  data="gaussian20d" onclick=updateData()>Gaussian20D</button>
+<button class="button" data="3gaussian20d" onclick="updateData()">3 Gaussians in 20D </button>
+<button class="button" data="5spokes20d" onclick="updateData()">5 Spokes in 20D </button>
+<button class="button" data="sphere20d" onclick="updateData()">Spherical shell 20D </button>
+<button class="button" data="circle2d" onclick="updateData()">Circle in 2D </button>
+<button class="button" data="cube10d" onclick="updateData()">Cube edges in 10D </button>
 
-  <div class="slider-container">
-    <br/>
-    <label for="d-slider2">Hidden dimension:</label>
-    <input type="range" id="d-slider2" min="0" max="9" step="1"  value="2" oninput=updateImage2()>
-    <span id="d-value2">2</span>
-    <br/>
-    <label for="l-slider2">lambda:</label>
-    <input type="range" id="l-slider2" min="0" max="8" step="1" value="0" oninput=updateImage2()>
-    <span id="l-value2">1e-2</span>
+
+</div>
+<div class="slider-container">
+  <br/>
+  Hover on a point to view the hidden layer activations
+  <br/>
+  <label for="d-slider0">Hidden dimension:</label>
+  <input type="range" id="d-slider0" min="0" max="8" step="1"  value="0" >
+  <span id="d-value0">2</span>
+  <br/>
+  <label for="l-slider0">lambda:</label>
+  <input type="range" id="l-slider0" min="0" max="12" step="1" value="0">
+  <span id="l-value0">1</span>
+</div>
+
+<div style="display: flex;">
+  <div id="scatterplot"></div>
+  <div id="heatmap" class="'heatmap">
+    
   </div>
-  <div class="image-container2">
-    <img id="display-img2" src="img/gaussian20d/10_0.005.png" width="60%" alt="[Move the slider if loading fails]">
-  </div>
-  <script src="slider2.js"></script>
+</div>
+<script src="makeplots.js"></script>
+
+
 
 </div>
 </div>

@@ -99,3 +99,27 @@ document.getElementById('trainButton').addEventListener('click', async () => {
   <img src="https://substack-post-media.s3.amazonaws.com/public/images/b00b036f-eb9c-40ae-8fbe-245b73ccefc2_540x720.gif">
     <br/>
 </>
+
+
+<h3>Reconstructing data with high dimensionality </h3>
+<div class="l-page"> 
+  
+<div class="button-bar">
+  <button class="button active" title="Data sampled from a unit normal distirbuion in 20D"  data-distribution="gaussian20d" onclick=updateImage2("gaussian20d")>Gaussian20D</button>
+  <button class="button" data-distribution="3gaussian20d" onclick="updateImage2()">3 Gaussians in 20D </button>
+  <button class="button" data-distribution="5spokes20d" onclick="updateImage2()">5 Spokes in 20D </button>
+
+  <div class="slider-container">
+    <br/>
+    <label for="d-slider2">Hidden dimension:</label>
+    <input type="range" id="d-slider2" min="0" max="9" step="1"  value="2" oninput=updateImage2()>
+    <span id="d-value2">2</span>
+    <br/>
+    <label for="l-slider2">lambda:</label>
+    <input type="range" id="l-slider2" min="0" max="8" step="1" value="0" oninput=updateImage2()>
+    <span id="l-value2">1e-2</span>
+  </div>
+  <div class="image-container2">
+    <img id="display-img2" src="img/gaussian20d/10_0.005.png" width="60%" alt="[Move the slider if loading fails]">
+  </div>
+  <script src="slider2.js"></script>
