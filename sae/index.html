@@ -113,6 +113,7 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
 <button class="button active" title="Data sampled from a unit normal distirbuion in 20D"  data="gaussian20d" onclick=updateData()>Gaussian20D</button>
 <button class="button" data="3gaussian20d" onclick="updateData()">3 Gaussians in 20D </button>
 <button class="button" data="5spokes20d" onclick="updateData()">5 Spokes in 20D </button>
+<button class="button" data="20spokes10d" onclick="updateData()">20 Spokes in 10D </button>
 <button class="button" data="sphere20d" onclick="updateData()">Spherical shell 20D </button>
 <button class="button" data="circle2d" onclick="updateData()">Circle in 2D </button>
 <button class="button" data="swiss3d" onclick="updateData()">Swiss roll in 3D </button>
@@ -152,6 +153,10 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
 
 <dt-appendix>
   <h4>Notes on training the SAE (the formatting may look weird depening on the screen resolution)</h4>
+  <p>[TODO] Incorporate model training tricks from works training LLM SAEs 
+    <dt-cite key="Conmy2023"></dt-cite>
+    <dt-cite key="Marks2023"></dt-cite>
+    <dt-cite key="Nanda2023"></dt-cite> </p>
   <b>Reproducibility:</b>
   <dt-code block language="python">
     np.random.seed(42)
@@ -375,5 +380,30 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
   archivePrefix={arXiv},
   primaryClass={cs.LG}
 }
+
+@misc{Conmy2023,
+  author = {Arthur Conmy},
+  title = {My best guess at the important tricks for training 1L SAEs},
+  year = {2023},
+  url = {https://www.lesswrong.com/posts/fifPCos6ddsmJYahD/my-best-guess-at-the-important-tricks-for-training-1l-saes},
+  note = {Accessed: 2024-05-30}
+}
+
+@misc{Marks2023,
+  author = {Sam Marks},
+  title = {Some open-source dictionaries and dictionary learning infrastructure},
+  year = {2023},
+  url = {https://www.lesswrong.com/posts/AaoWLcmpY3LKvtdyq/some-open-source-dictionaries-and-dictionary-learning},
+  note = {Accessed: 2024-05-30}
+}
+
+@misc{Nanda2023,
+  author = {Neel Nanda},
+  title = {Open Source Replication and Commentary on Anthropic's Dictionary Learning Paper},
+  year = {2023},
+  url = {https://www.lesswrong.com/posts/fKuugaxt2XLTkASkk/open-source-replication-and-commentary-on-anthropic-s},
+  note = {Accessed: 2024-05-30}
+}
+
 </script>
 
