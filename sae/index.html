@@ -67,7 +67,7 @@
    the corresponding feature activations for the directions. Since it is possible to arbitrarily reduce the sparsity loss term without affecting reconstructions, we might have to constrain the norms of the columns of \( W_{\text{dec}} \)
   during training, as suggested by previous work from DeepMind<dt-cite key="rajamanoharan2024improving"></dt-cite>. Thus, this will be our model: for some input \(\mathbf{x} \in \mathbb{R}^d\), the encoder is:
   \[
-  \mathbf{h} = \text{ReLU}(W_{\text{enc}} (x - x_{\text{dec}}) + b_{\text{enc}})
+  \mathbf{h} = \text{ReLU}(W_{\text{enc}} (x - b_{\text{dec}}) + b_{\text{enc}})
   \]
   The decoder reconstructs the input and can be represented as:
   \[
