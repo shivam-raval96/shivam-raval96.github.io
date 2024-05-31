@@ -63,7 +63,7 @@
   \[
   x = x_0 + \sum_{i=1}^M f(x)_i d_i,
   \]
-  where \( d_i \in \mathbb{R}^d \) are \( M \gg d \) are the feature directions, and the sparse coefficients \( f(x) \geq 0 \) are
+  where \( d_i \in \mathbb{R}^M \) are \( M \gg d \) are the feature directions, and the sparse coefficients \( f(x) \geq 0 \) are
    the corresponding feature activations for the directions. Since it is possible to arbitrarily reduce the sparsity loss term without affecting reconstructions, we might have to constrain the norms of the columns of \( W_{\text{dec}} \)
   during training, as suggested by previous work from DeepMind<dt-cite key="rajamanoharan2024improving"></dt-cite>. Thus, this will be our model: for some input \(\mathbf{x} \in \mathbb{R}^d\), the encoder is:
   \[
@@ -118,7 +118,7 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
 <button class="button" data="circle2d" onclick="updateData()">Circle in 2D </button>
 <button class="button" data="swiss3d" onclick="updateData()">Swiss roll in 3D </button>
 <button class="button" data="cube10d" onclick="updateData()">Cube edges in 10D </button>
-<button class="button" data="xor20d" onclick="updateData()">XOR in 20D </button>
+<button class="button" data="circle2dl1_0.5" onclick="updateData()">Circle with l1^1/2 </button>
 
 
 </div>
@@ -147,6 +147,17 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
 
 
 </div>
+</div>
+
+<div class="l-page"> 
+  <h2>Training with an L1^0.5 loss</h2>
+  [Coming soon]
+</div>
+
+<div class="l-page"> 
+  <h2>Tackling shrinkage using Gated SAEs</h2>
+  [Coming soon]
+
 </div>
 
 </dt-article>
