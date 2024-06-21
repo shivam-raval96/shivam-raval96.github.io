@@ -45,11 +45,11 @@
     Autoencoders (AE) generally consist of an encoder and a decoder, 
     where the encoder maps the input to a latent space and the decoder reconstructs the input from this 
     latent space. One of the key objectives of an autoencoder is to capture the most important features 
-    of the data necessary to reconstruct it. A sparse autoencoder (SAE) adds a sparsity penalty (L1 loss) to the loss function to learn sparse representations. For our purposes, we want to decompose an input \( x \in \mathbb{R}^d \) into a sparse, linear combination of feature directions:
+    of the data necessary to reconstruct it. A sparse autoencoder (SAE) adds a sparsity penalty (L1 loss) to the loss function to learn sparse representations. For our purposes, we want to decompose an input \( x^j \in \mathbb{R}^d \) into a sparse, linear combination of feature directions:
     \[
-    x = x_0 + \sum_{i=1}^M f_i(x) d_i,
+    x^j = x^j_0 + \sum_{i=1}^M f_i(x^j) d_i,
     \]
-    where \( d_i \in \mathbb{R}^M \) are \( M \gg d \) are the feature directions, and the sparse coefficients \( f(x) \geq 0 \) are
+    where \( d_i \in \mathbb{R}^M \) are \( M \gg d \) are the feature directions, and the sparse coefficients \( f_i(x^j) \geq 0 \) are
     the corresponding feature activations for the directions. Since it is possible to arbitrarily reduce the sparsity loss term without affecting reconstructions, we might have to constrain the norms of the columns of \( W_{\text{dec}} \)
     during training, as suggested by previous work from DeepMind<dt-cite key="rajamanoharan2024improving"></dt-cite>. Thus, this will be our model: for some input \(\mathbf{x} \in \mathbb{R}^d\), the encoder is:
     \[
