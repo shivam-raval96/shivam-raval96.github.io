@@ -1,35 +1,16 @@
 <!doctype html>
 <meta charset="utf-8">
 <head>
-    <style>
-        button {
-          background-color: #ffffff;
-          color: rgb(229, 229, 229);
-          border: 1px solid black;
-          padding: 10px 20px;
-          cursor: pointer;
-          border-radius: 5px;
-          margin-top: 20px;
-          margin-left: 20px;
-          font-size: 20px;
-        }
-      
-        button:hover {
-          color: #818181;
-        }
-        .active {
-          color: #000000;
-        }
-      </style>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" ></script>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="../distill.template.v1.js"></script>
   <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-
-  <script src="train1.js" defer></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="makeplots.js"></script>
 
 </head>
 
@@ -46,128 +27,204 @@
 <dt-article >
   <div class="l-page">
   <h1>An exploration of sparse autoencoders trained on synthetic data</h1>
-  <h2>[Under construction]</h2>
-  <dt-byline></dt-byline>
-  <p>Anthropic interpretability team recent showed Saprse Autoencoders (SAEs) can extract interpretable 
-    features from Claude 3 Sonnet<dt-cite key="templeton2024scaling"></dt-cite>. We would like to understand
-    s features on some synthetic datasets.
-  </p>
+    <h2>[Under construction]</h2>
+    <dt-byline></dt-byline>
+    <p>The Anthropic interpretability team recently showed Sparse Autoencoders (SAEs) can extract interpretable 
+      concepts from Claude 3 Sonnet<dt-cite key="templeton2024scaling"></dt-cite>. In the following weeks, 
+      OpenAI <dt-cite key="gao2024scalingsae"></dt-cite> and  DeepMind <dt-cite key="templeton2024scaling"></dt-cite> showcased similar results using their own variant autoencoders, Gated SAEs (DeepMind) and K-Sparse AEs (OpenAI)
+      
+      
+      We would like to understand how these models work, what sort of features they can learn, and replicate some of the phenomena observed in large models ourselves. 
+      For our experiments we will train small models on synthetic data, but in a similar fashion to these works, and mechanistically study the trained models.
+      Two phenomena observed while training the model are quite interesting: <a href="https://www.alignmentforum.org/posts/3JuSjTZyMzaSeTxKk/addressing-feature-suppression-in-saes">"Shrinkage"</a> <dt-cite key="Wright2024shrinkage"></dt-cite> and <a href="https://transformer-circuits.pub/2023/monosemantic-features/index.html#phenomenology-feature-splitting">"Splitting"</a> <dt-cite key="bricken2023monosemanticity"></dt-cite>.
+    </p>
 
+    
+
+    <h2>Sparse Autoencoders as feature extractors</h2>
+    Autoencoders (AE) generally consist of an encoder and a decoder, 
+    where the encoder maps the input to a latent space and the decoder reconstructs the input from this 
+    latent space. One of the key objectives of an autoencoder is to capture the most important features 
+    of the data necessary to reconstruct it. A sparse autoencoder (SAE) adds a sparsity penalty (L1 loss) to the loss function to learn sparse representations. For our purposes, we want to decompose an input \( x \in \mathbb{R}^d \) into a sparse, linear combination of feature directions:
+    \[
+    x = x_0 + \sum_{i=1}^M f_i(x) d_i,
+    \]
+    where \( d_i \in \mathbb{R}^M \) are \( M \gg d \) are the feature directions, and the sparse coefficients \( f(x) \geq 0 \) are
+    the corresponding feature activations for the directions. Since it is possible to arbitrarily reduce the sparsity loss term without affecting reconstructions, we might have to constrain the norms of the columns of \( W_{\text{dec}} \)
+    during training, as suggested by previous work from DeepMind<dt-cite key="rajamanoharan2024improving"></dt-cite>. Thus, this will be our model: for some input \(\mathbf{x} \in \mathbb{R}^d\), the encoder is:
+    \[
+    \mathbf{h} = \text{ReLU}(W_{\text{enc}} (x - b_{\text{dec}}) + b_{\text{enc}})
+    \]
+    The decoder reconstructs the input and can be represented as:
+    \[
+    \mathbf{\hat{x}} =  W_{\text{dec}} \mathbf{h} + b_{\text{dec}}
+    \]
+
+    The loss is the sum of the error in reconstruction of the input (typically the MSE) and a sparsity penalty on L1 penalty on the activations \(\mathbf{h} \in \mathbb{R}^M\)
+    \[
+  L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \mathbf{\hat{x}}\|^2_2 + \lambda \sum_{i=1}^M |h_i|
+  \]  
+
+  <h2>What causes feature shrinkage?</h2>
+    <p><b>Case I: No \(L_1\) regularization</b> \[L = \sum \| \hat{x} - x \|^2\]
+      \[
+      \frac{\partial L}{\partial x} = 2 (\hat{x} - x) \left( \frac{\partial \hat{x}}{\partial x} - 1 \right)\]
+     Minimum loss is achieved when \(\frac{\partial L}{\partial x} = 0\), or 
+        \[
+      2 (\hat{x} - x) \left( \frac{\partial \hat{x}}{\partial x} - 1 \right) = 0\]
+        The obvious optimal solution for this is \(\hat{x} = x\)</p>
+
+        <p><b>Case II: with \(L_1\) regularization</b>
+          \[L = \| \hat{x} - x \|^2 + \lambda \| h \|_1\]
+
+          \[\frac{\partial L}{\partial x} = 2 (\hat{x} - x) \left( \frac{\partial \hat{x}}{\partial x} - 1 \right) + \lambda \frac{\partial \| h \|_1}{\partial x}\]
+          At the optimal point:
+          \[
+          \frac{\partial L}{\partial x} = 2 (\hat{x} - x) \left( W_d W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h)) - 1 \right) + \lambda W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h)) = 0
+          \]
+
+          
   
+          Rearanging, we get:
+          \[
+          \hat{x} = x - \frac{\lambda W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h))}{2 \left( W_d W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h)) - 1 \right)}
+          \]
 
-  <h2>Sparse Autoencoders as feature extractors</h2>
-  Autoencoders (AE) generally consist of an encoder and a decoder, 
-  where the encoder maps the input to a latent space and the decoder reconstructs the input from this 
-  latent space. One of the key objectives of an autoencoder is to capture the most important features 
-  of the data necessary to reconstruct it. A sparse autoencoder (SAE) adds a sparsity penalty (L1 loss) to the loss function to learn sparse representations. For our purposes, we want to decompose an input \( x \in \mathbb{R}^d \) into a sparse, linear combination of feature directions:
-  \[
-  x = x_0 + \sum_{i=1}^M f(x)_i d_i,
-  \]
-  where \( d_i \in \mathbb{R}^M \) are \( M \gg d \) are the feature directions, and the sparse coefficients \( f(x) \geq 0 \) are
-   the corresponding feature activations for the directions. Since it is possible to arbitrarily reduce the sparsity loss term without affecting reconstructions, we might have to constrain the norms of the columns of \( W_{\text{dec}} \)
-  during training, as suggested by previous work from DeepMind<dt-cite key="rajamanoharan2024improving"></dt-cite>. Thus, this will be our model: for some input \(\mathbf{x} \in \mathbb{R}^d\), the encoder is:
-  \[
-  \mathbf{h} = \text{ReLU}(W_{\text{enc}} (x - b_{\text{dec}}) + b_{\text{enc}})
-  \]
-  The decoder reconstructs the input and can be represented as:
-  \[
-  \mathbf{\hat{x}} =  W_{\text{dec}} \mathbf{h} + b_{\text{dec}}
-  \]
+          The reconstruction \(\hat{x}\) is shifted by a term that depends on the regularization parameter \(\lambda\) and the weights \(W_e\) and \(W_d\). This shift results in shrinkage and can even pull \(\hat{x}\) to zero in extreme cases.
+  
+  
+        </div>
 
-  The loss is the sum of the error in reconstruction of the input (typically the MSE) and a sparsity penalty on L1 penalty on the activations \(\mathbf{h} \in \mathbb{R}^M\)
-  \[
-L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \mathbf{\hat{x}}\|^2_2 + \lambda \sum_{i=1}^M |h_i|
-\]  
-</div>
-
-
-<h2>Training an SAE on two dimensional gaussain data</h2>
-<div class="l-page side"> 
-  <div class="slider-container">
-    <br/>
-    <label for="d-slider">Hidden dimension:</label>
-    <input type="range" id="d-slider" min="0" max="13" step="1"  value="2" oninput=updateImage("gaussian2d")>
-    <span id="d-value">2</span>
-    <br/>
-    <label for="l-slider">lambda:</label>
-    <input type="range" id="l-slider" min="0" max="12" step="1" value="0" oninput=updateImage("gaussian2d")>
-    <span id="l-value">1e-2</span>
-  </div>
-  <div class="image-container">
-    <img id="display-img" src="img/gaussian2d/10_0.005.png" width="100%" alt="[Move the slider if loading fails]">
-  </div>
-</div>
-<div class="side">
-  Let's train a SAE to reconstruct a Gaussian distribution \(\mathcal{N}(\mu = 0, \sigma = 1) \text{ in }\) in two dimensions. 
-  The figures on the side show the original data (in blue) and the reconstructed data (in red) from a trained model for a range of hidden dimensions and the sparsity regularization parameter \( \lambda \)
-  A datapoint and its reconstruction are connected by a thin grey line, as a visual aid.
-  The lines in green are the learned feature directions. They are scaled by the activation value averaged across all inputs, i.e., \(\sum_{i=1}^M h_i\). If a feature direction is very small or near zero, its feature direction will not be prominent on the plot, and that feature is a "dead feature". It does not help in reconstruction
-  <br/>
-  <h4>Effect of sparsity regularization </h4>  High values enforces a stronger sparsity constraint on the hidden layer activations, encouraging most neurons to be inactive for any given input. As a result, the feature directions may become more distinct, but also result in many dead features. However, if \( \lambda \) is too high, it may hinder the SAE's ability to reconstruct the data accurately (not shown here).
- </div>
-
-<script src="slider.js"></script>
-
-<h2>Reconstructing data with high dimensionality</h2>
-<div class="l-page button-bar"> 
-<button class="button active" title="Data sampled from a unit normal distirbuion in 20D"  data="gaussian20d" onclick=updateData()>Gaussian20D</button>
-<button class="button" data="3gaussian20d" onclick="updateData()">3 Gaussians in 20D </button>
-<button class="button" data="5spokes20d" onclick="updateData()">5 Spokes in 20D </button>
-<button class="button" data="20spokes10d" onclick="updateData()">20 Spokes in 10D </button>
-<button class="button" data="sphere20d" onclick="updateData()">Spherical shell 20D </button>
-<button class="button" data="circle2d" onclick="updateData()">Circle in 2D </button>
-<button class="button" data="swiss3d" onclick="updateData()">Swiss roll in 3D </button>
-<button class="button" data="cube10d" onclick="updateData()">Cube edges in 10D </button>
-<button class="button" data="circle2dl1_0.5" onclick="updateData()">Circle with l1^1/2 </button>
-
-
-</div>
-<div class="slider-container">
-  <br/>
-  Hover on a point to view the hidden layer activations 
-  <br/>
-  <label for="d-slider0">Hidden dimension:</label>
-  <input type="range" id="d-slider0" min="0" max="8" step="1"  value="4" >
-  <span id="d-value0">20</span>
-  <br/>
-  <label for="l-slider0">lambda:</label>
-  <input type="range" id="l-slider0" min="0" max="12" step="1" value="4">
-  <span id="l-value0">0.01</span>
-</div>
+<h2>A simple illustration of "shrinkage"</h2>
+<div class="l-page "> 
+Let us see this reconstruction shrinkage in action: we will train an SAE on data sampled from a unit circle in 2D. 
+The sliders vary hyperparameters for the SAE: the lambda controls the strength of the regularization, and the hidden dimension is the number of neurons in the output of the encoder or the input of the decoder (or equivalently the number of feature directions that the SAE can find).
+At stronger sparsity regularization (larger lambda) the reconstructions do show a shrinkage effect, collapsing down to a point in an extreme case.
+<br/>
 
 <div style="display: flex;">
-  <div id="scatterplot"></div>
-  <div id="heatmap"></div>
-  <div id="legend"></div>
+  <center>
+  <div class="slider-container" >
+    <label for="d-slider_0"><p>h_dim:</label> <span id="d-value_0"></span>
+    <input type="range" id="d-slider_0" min="0" max="8" step="1"  value="4" ></p>
+    <label for="l-slider_0"><p>lambda:</label><span id="l-value_0"></span>
+    <input type="range" id="l-slider_0" min="0" max="12" step="1" value="4"></p>
+
+    <p>Learned feature directions</p>
+
+    <div id="feat_directions_0" style="border:1px solid black;margin:5px"></div>
+  </div>
+</center>
+
+  <div>
+    <center>
+    <p><span style="color:steelblue">Original data</span> along with its <span style="color:#ff6666">reconstructions</span></p>
+    <div id="scatterplot_0" style="border:1px solid black;margin:20px"></div>
+  </center>
 
   </div>
+
+    <div>
+      <center>
+      <p>Encoded activations [Hover over the plot to view]</p>
+      <div id="heatmap_0"></div>
+    </center>
+    </div>
+  </div>
 </div>
-<script src="makeplots.js"></script>
+
+<h2>A simple illustration of "splitting"</h2>
+<div class="l-page "> 
+  Large language models like ChatGPT and Claude encode lots of concepts (possibly of the order of millions or more) but the features recovered by the SAEs depend on the size of the hidden dimension. 
+  If the SAE model size is not large enough, the model might have to "cut costs" (preferentially learn some directions instead of others). Let us construct an example that will build up to such a scenario.
+  <h3>Case I</h3>
+
+  Our toy dataset will be 3 "spokes" of data embedded in 2D, inspired by the works on toy models of superposition <dt-cite key="Elhage2022superposition"></dt-cite> and follow-up works <dt-cite key = "Sharkey2024superposition"></dt-cite>.
+  Suppose each spoke represents a feature direction and points farther along a spoke indicate higher activation for that feature. Here are some subsets of such data used to train our models:
+  <br/>
+  <br/>
+
+  <center>
+  <img src="./img/3spokes.png" width="800px">
+  </center>
+
+  After the trained models can recover these directions, except in cases where the sparsity causes some directions to zero out completely, resulting in "dead features" (We'll come back to it later).
+    <center>
+    <img src="./img/3spokes_2.png" width="800px">
+    </center>
+  
+  <h3>Case II</h3>
+
+  Now consider a case where each of the three directions are split into 3 directions, a total of 9 directions: 
+
+    <center>
+    <img src="./img/3x3spokes.png" width="800px">
+    </center>
 
 
+  
+  <div style="display: flex;">
+    <center>
+    <div class="slider-container" >
+      <label for="d-slider_1"><p>h_dim:</label> <span id="d-value_1"></span>
+      <input type="range" id="d-slider_1" min="0" max="15" step="1"  value="4" ></p>
+      <label for="l-slider_1"><p>lambda:</label><span id="l-value_1"></span>
+      <input type="range" id="l-slider_1" min="0" max="25" step="1" value="4"></p>
+  
+      <p>Learned feature directions</p>
+  
+      <div id="feat_directions_1" style="border:1px solid black;margin:5px"></div>
+    </div>
+  </center>
 
-</div>
-</div>
+    <div>
+      <center>
+      <p><span style="color:steelblue">Original data</span> along with its <span style="color:#ff6666">reconstructions</span></p>
+      <div id="scatterplot_1" style="border:1px solid black;margin:20px"></div>
+    </center>
+
+    </div>
+
+      <div>
+        <center>
+        <p>Encoded activations [Hover over the plot to view]</p>
+        <div id="heatmap_1"></div>
+      </center>
+      </div>
+    </div>
+  </div>
+  </div>
+
 
 <div class="l-page"> 
-  <h2>Training with an L1^0.5 loss</h2>
+  <h2>When does feature splitting occur? <a href="https://transformer-circuits.pub/2023/monosemantic-features/index.html#phenomenology-feature-splitting">[From Anthropic]</a> </h2>
+    <img src="./img/splitting.png" width="800px">
+  
+  </div>
+
+
+
+<div class="l-page"> 
+  <h2>Gated SAEs</h2>
   [Coming soon]
 </div>
 
-<div class="l-page"> 
-  <h2>Tackling shrinkage using Gated SAEs</h2>
-  [Coming soon]
 
+
+<div class="l-page"> 
+  <h2>K-Sparse AEs</h2>
+  [Coming soon]
 </div>
 
 </dt-article>
 
 <dt-appendix>
-  <h4>Notes on training the SAE (the formatting may look weird depening on the screen resolution)</h4>
+  <h4>Notes on training the SAE (the formatting may look weird depending on screen resolution)</h4>
   <p>[TODO] Incorporate model training tricks from works training LLM SAEs 
     <dt-cite key="Conmy2023"></dt-cite>
     <dt-cite key="Marks2023"></dt-cite>
-    <dt-cite key="Nanda2023"></dt-cite> </p>
+    <dt-cite key="Nanda2023"></dt-cite>
+    <dt-cite key="Anthropic2023"></dt-cite>  </p>
   <b>Reproducibility:</b>
   <dt-code block language="python">
     np.random.seed(42)
@@ -416,5 +473,71 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
   note = {Accessed: 2024-05-30}
 }
 
+@misc{Anthropic2023,
+  author = {Anthropic},
+  title = {Advice for Training Sparse Autoencoders},
+  year = {2023},
+  url = {https://transformer-circuits.pub/2023/monosemantic-features#appendix-autoencoder},
+  note = {Accessed: 2024-05-30}
+}
+
+
+@misc{McDougall2023,
+  author = {Callum McDougall},
+  title = {Intro to Superposition & Sparse Autoencoders (Colab exercises)},
+  year = {2023},
+  url = {https://www.lesswrong.com/posts/LnHowHgmrMbWtpkxx/intro-to-superposition-and-sparse-autoencoders-colab },
+  note = {Accessed: 2024-05-30}
+}
+
+@misc{gao2024scalingsae,
+  title={Scaling and evaluating sparse autoencoders}, 
+  author={Leo Gao and Tom Dupré la Tour and Henk Tillman and Gabriel Goh and Rajan Troll and Alec Radford and Ilya Sutskever and Jan Leike and Jeffrey Wu},
+  year={2024},
+  eprint={2406.04093},
+  archivePrefix={arXiv},
+  primaryClass={id='cs.LG' full_name='Machine Learning' is_active=True alt_name=None in_archive='cs' is_general=False description='Papers on all aspects of machine learning research (supervised, unsupervised, reinforcement learning, bandit problems, and so on) including also robustness, explanation, fairness, and methodology. cs.LG is also an appropriate primary category for applications of machine learning methods.'}
+}
+
+@misc{rajamanoharan2024gatedsae,
+  title={Improving Dictionary Learning with Gated Sparse Autoencoders}, 
+  author={Senthooran Rajamanoharan and Arthur Conmy and Lewis Smith and Tom Lieberum and Vikrant Varma and János Kramár and Rohin Shah and Neel Nanda},
+  year={2024},
+  eprint={2404.16014},
+  archivePrefix={arXiv},
+  primaryClass={id='cs.LG' full_name='Machine Learning' is_active=True alt_name=None in_archive='cs' is_general=False description='Papers on all aspects of machine learning research (supervised, unsupervised, reinforcement learning, bandit problems, and so on) including also robustness, explanation, fairness, and methodology. cs.LG is also an appropriate primary category for applications of machine learning methods.'}
+}
+
+@article{bricken2023monosemanticity,
+  title={Towards Monosemanticity: Decomposing Language Models With Dictionary Learning},
+  author={Bricken, Trenton and Templeton, Adly and Batson, Joshua and Chen, Brian and Jermyn, Adam and Conerly, Tom and Turner, Nick and Anil, Cem and Denison, Carson and Askell, Amanda and Lasenby, Robert and Wu, Yifan and Kravec, Shauna and Schiefer, Nicholas and Maxwell, Tim and Joseph, Nicholas and Hatfield-Dodds, Zac and Tamkin, Alex and Nguyen, Karina and McLean, Brayden and Burke, Josiah E and Hume, Tristan and Carter, Shan and Henighan, Tom and Olah, Christopher},
+  year={2023},
+  journal={Transformer Circuits Thread},
+  note={https://transformer-circuits.pub/2023/monosemantic-features/index.html}
+}
+
+@misc{Wright2024shrinkage,
+  title={Addressing Feature Suppression in SAEs}, 
+  author={Benjamin Wright and Lee Sharkey},
+  year={2024},
+  url = {https://www.alignmentforum.org/posts/3JuSjTZyMzaSeTxKk/addressing-feature-suppression-in-saes},
+  note = {Accessed: 2024-05-30}
+}
+
+@article{Elhage2022superposition,
+  title={Toy Models of Superposition},
+  author={Elhage, Nelson and Hume, Tristan and Olsson, Catherine and Schiefer, Nicholas and Henighan, Tom and Kravec, Shauna and Hatfield-Dodds, Zac and Lasenby, Robert and Drain, Dawn and Chen, Carol and Grosse, Roger and McCandlish, Sam and Kaplan, Jared and Amodei, Dario and Wattenberg, Martin and Olah, Christopher},
+  year={2022},
+  journal={Transformer Circuits Thread},
+  note={https://transformer-circuits.pub/2022/toy_model/index.html}
+}
+
+@misc{Sharkey2024superposition,
+  title={[Interim research report] Taking features out of superposition with sparse autoencoders}, 
+  author={Lee Sharkey, Dan Braun and Beren Millidge},
+  year={2024},
+  url = {https://www.alignmentforum.org/posts/z6QQJbtpkEAX3Aojj/interim-research-report-taking-features-out-of-superposition#Toy_dataset_generation},
+  note = {Accessed: 2024-05-30}
+}
 </script>
 
