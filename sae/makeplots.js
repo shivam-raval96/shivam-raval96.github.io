@@ -1,10 +1,8 @@
 document.addEventListener("DOMContentLoaded", function() {
-    let currentD = 20;
-    let currentL = 0.01;
 
     // Initial load
-    loadData('circle2d', '0');
-    loadData('3x3spokes2', '1');
+    loadData('circle2d', '0', 20, 0.01);
+    loadData('3x3spokes2', '1', 3, 0.3);
 
 
     function updateData() {
@@ -55,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .attr("y1", (d, i) => yScale(0))
             .attr("x2", (d, i) => xScale(scaler*d[0]))
             .attr("y2", (d, i) => yScale(scaler*d[1]))
-            .attr("stroke", (d, i) => colors[(i + 1)%9]);
+            .attr("stroke", (d, i) => colors[(i)%9]);
 
         // Create points
         svg.selectAll(".point")
@@ -68,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .attr("fill", (d, i) => colors[i%9])
             .attr("class", "point");
     }
-    function loadData(dataFile, index) {
+    function loadData(dataFile, index,currentD, currentL) {
         d3.json('./data/' + dataFile + '.json').then(function(data) {
             const width = 400;
             const height = 300;
