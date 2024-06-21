@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function() {
 
     // Initial load
-    loadData('circle2d', '0', 20, 0.01);
+    loadData('circle2d', '0', 25, 0.1);
     loadData('3x3spokes2', '1', 3, 0.3);
 
 
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function makeFeatDirectionsPlot(data, index){
         d3.select("#feat_directions_"+ index).selectAll("*").remove();
-        const colors = ['crimson','steelblue','darkgreen', 'salmon', 'green', 'lightblue', 'pink', 'lightgreen', 'navy']
+        const colors = ['crimson','steelblue','darkgreen', 'peru', 'navy', 'olive', 'gold', 'darkviolet', 'teal']
         // Set dimensions
         const width = 100;
         const height = 150;
