@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function() {
     function makeFeatDirectionsPlot(data, index){
         d3.select("#feat_directions_"+ index).selectAll("*").remove();
         const colors = ['crimson','steelblue','darkgreen', 'salmon', 'green', 'lightblue', 'pink', 'lightgreen', 'navy']
-        console.log(data.slice(1))
         // Set dimensions
         const width = 100;
         const height = 150;
@@ -75,7 +74,6 @@ document.addEventListener("DOMContentLoaded", function() {
             const height = 300;
             let r_small = 5;
             let r_big = 15;
-            console.log(data)
 
             const dValues = data.h_dims;
             const lValues = data.lambdas;
