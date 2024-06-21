@@ -1,10 +1,9 @@
 document.addEventListener("DOMContentLoaded", function() {
-    let currentData = 'circle2d';
     let currentD = 20;
     let currentL = 0.01;
 
     // Initial load
-    loadData(currentData, '0');
+    loadData('circle2d', '0');
     loadData('3x3spokes2', '1');
 
 
