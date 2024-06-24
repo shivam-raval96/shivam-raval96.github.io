@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initial load
     loadData('circle2d', '0', 25, 0.1);
     loadData('3x3spokes2', '1', 3, 0.3);
-    const colors = ['crimson','steelblue','darkgreen', 'peru', 'navy', 'olive', 'gold', 'darkviolet', 'teal']
 
 
     function updateData() {
@@ -18,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function makeFeatDirectionsPlot(data, index){
         d3.select("#feat_directions_"+ index).selectAll("*").remove();
+        const colors = ['crimson','steelblue','darkgreen', 'peru', 'navy', 'olive', 'gold', 'darkviolet', 'teal']
         // Set dimensions
         const width = 100;
         const height = 150;
@@ -135,19 +135,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 makeFeatDirectionsPlot(data[key].directions, index)
                 const reconstructed = data[key].reconstructed;
                 const encoded = data[key].encoded;
-                const transposedEncoded = d3.transpose(encoded);
-                const maxValuesDim = transposedEncoded.map(col => d3.max(col));
                 const maxEnc = d3.max(encoded, function(row) {
                     return d3.max(row);
                 });
                 const minEnc = d3.min(encoded, function(row) {
                     return d3.min(row);
                 });
-                const cmapRange = [minEnc, maxEnc];
+                const cmapRange = [maxEnc, minEnc];
 
                 // Clear previous elements
                 svg.selectAll("*").remove();
-                d3.select("#barplot_" + index).selectAll("*").remove();
+                d3.select("#heatmap_" + index).selectAll("*").remove();
 
                 // Draw lines connecting corresponding points
                 const lines = svg.selectAll("line")
@@ -181,13 +179,13 @@ document.addEventListener("DOMContentLoaded", function() {
                         const i = data.data.indexOf(d);
                         d3.select(this).attr("r", r_big).attr("opacity", 1).raise(); // Enlarge hovered data point
                         d3.select(`.rec-point-${i}`).attr("r", r_big).attr("opacity", 1).raise(); // Enlarge corresponding reconstructed point
-                        fillBarPlot(encoded[i], currentD, cmapRange);
+                        fillHeatmap(encoded[i], currentD, cmapRange);
                     })
                     .on("mouseout", function(event, d) {
                         const i = data.data.indexOf(d);
                         d3.select(this).attr("r", r_small).attr("opacity", 0.7); // Reset data point size
                         d3.select(`.rec-point-${i}`).attr("r", r_small).attr("opacity", 0.7); // Reset corresponding reconstructed point size
-                        clearBarPlot();
+                        clearHeatmap();
                     });
 
                 // Plot reconstructed points
@@ -208,102 +206,117 @@ document.addEventListener("DOMContentLoaded", function() {
                     const i = reconstructed.indexOf(d);
                     d3.select(this).attr("r", r_big).attr("opacity", 1).raise(); // Enlarge hovered reconstructed point
                     d3.select(`.data-point-${i}`).attr("r", r_big).attr("opacity", 1).raise(); // Enlarge corresponding data point
-                    fillBarPlot(encoded[i], currentD, cmapRange);
+                    fillHeatmap(encoded[i], currentD, cmapRange);
                 })
                 .on("mouseout", function(event, d) {
                     const i = reconstructed.indexOf(d);
                     d3.select(this).attr("r", r_small).attr("opacity", 0.7); // Reset reconstructed point size
                     d3.select(`.data-point-${i}`).attr("r", r_small).attr("opacity", 0.7); // Reset corresponding data point size
-                    clearBarPlot();
+                    clearHeatmap();
                 });
 
+                // Heatmap setup
+                let n = 10
+                const columns = d > n ? Math.ceil(d / n) : 1;
+                const rows = Math.min(d, n);
 
-                // Bar plot setup
-                const barPlot = d3.select("#barplot_" + index)
-                    .append("svg")
-                    .attr("width", width)
-                    .attr("height", height)
-                    .append("g")
-                    .attr("transform", `translate(${margin.left},${margin.top})`);
+                const heatmap = d3.select("#heatmap_" + index)
+                    .style("width", `${columns * 50}px`)
+                    .style("height", `${rows * 25}px`)  // Adjust height based on rows
+                    .style("display", "grid")
+                    .style("grid-template-rows", `repeat(${rows}, 25px)`)  // Adjust number of rows based on rows
+                    .style("grid-template-columns", `repeat(${columns}, 50px)`);  // Adjust number of columns based on columns
 
-                const xBarScale = d3.scaleBand()
-                    .domain(d3.range(currentD))
-                    .range([0, width - margin.left - margin.right])
-                    .padding(0.2);
-
-                const yBarScale = d3.scaleLinear()
-                    .domain(cmapRange)
-                    .range([height - margin.top - margin.bottom, 0]);
-
-                    const xBarAxisBottom = d3.axisBottom(xBarScale).tickFormat((d, i) => "");
-                    const xBarAxisTop = d3.axisTop(xBarScale).tickFormat((d, i) => "").tickSizeInner(0).tickSizeOuter(0);
-                    const yBarAxisLeft = d3.axisLeft(yBarScale).tickFormat((d, i) => "").tickSizeInner(0).tickSizeOuter(0);
-                    const yBarAxisRight = d3.axisRight(yBarScale).tickFormat((d, i) => "").tickSizeInner(0).tickSizeOuter(0);
-                    
-                    barPlot.append("g")
-                        .attr("transform", `translate(0, ${height - margin.top - margin.bottom})`)
-                        .call(xBarAxisBottom)
-                    
-                    
-                    barPlot.append("g")
-                        .call(yBarAxisLeft);
-                    
-                    barPlot.append("g")
-                        .attr("transform", `translate(0, 0)`)
-                        .call(xBarAxisTop)
-                    
-                    barPlot.append("g")
-                        .attr("transform", `translate(${width - margin.left - margin.right}, 0)`)
-                        .call(yBarAxisRight);
-
-                // Add x-axis label
-                barPlot.append("text")
-                .attr("x", (width - margin.left - margin.right) / 2)
-                .attr("y", height- margin.top - margin.bottom)
-                .attr("dy", "1.5em")
-                .style("text-anchor", "middle")
-                .text("Neuron number");
-
-                // Add the max value bars in light grey
-                barPlot.selectAll(".max-bar")
-                    .data(maxValuesDim)
+                // Initialize heatmap with white cells
+                const size = 25;
+                const cells = heatmap.selectAll("div")
+                    .data(d3.range(d))
                     .enter()
-                    .append("rect")
-                    .attr("class", "max-bar")
-                    .attr("x", (d, i) => xBarScale(i))
-                    .attr("y", d => yBarScale(d))
-                    .attr("width", xBarScale.bandwidth())
-                    .attr("height", d => height - margin.top - margin.bottom - yBarScale(d))
-                    .attr("fill", "#f0f0f0")
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1);
+                    .append("div")
+                    .style("width", `${size}px`)
+                    .style("height", `${size}px`)
+                    .style("background-color", "white")
+                    .style("border", "1px solid lightgrey");
 
-                function fillBarPlot(data, d, cmapRange) {
-                    
-                    yBarScale.domain(cmapRange);  // Adjust y domain based on the expected range of your data
+                function fillHeatmap(data, d, cmapRange) {
+                    const color = d3.scaleSequential(d3.interpolateYlGnBu)
+                        .domain(cmapRange);  // Adjust domain based on the expected range of your data
 
-
-                    barPlot.selectAll(".bar")
+                    heatmap.selectAll("div")
                         .data(data.slice(0, d))
-                        .enter()
-                        .append("rect")
-                        .attr("class", "bar")
-                        .attr("x", (d, i) => xBarScale(i))
-                        .attr("y", d => yBarScale(d))
-                        .attr("width", xBarScale.bandwidth())
-                        .attr("height", d => height - margin.top - margin.bottom - yBarScale(d))
-                        .attr("fill", (d, i) => colors[i%9])
-                        .attr("stroke", "black")
-                        .attr("stroke-width", 1);
+                        .style("background-color", d => color(d));
                 }
 
-                function clearBarPlot() {
-                    barPlot.selectAll(".bar").remove();
+                function clearHeatmap() {
+                    heatmap.selectAll("div")
+                        .style("background-color", "white");
                 }
-            
             }
 
-            
+            // Add legend
+            if (d3.select("#legend svg").empty()) {
+                const legendHeight = 200;
+                const legendWidth = 20;
+                const legendMargin = { top: 25, bottom: 25 };
+
+                const legendSvg = d3.select("#legend")
+                    .append("svg")
+                    .attr("width", legendWidth + 150)  // Increased width to provide space for the labels
+                    .attr("height", legendHeight + legendMargin.top + legendMargin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(70,${legendMargin.top})`);  // Translate to center the gradient
+
+                const legendScale = d3.scaleLinear()
+                    .domain([3, 0])  // Match the color scale domain
+                    .range([legendHeight, 0]);
+
+                const legendAxis = d3.axisRight(legendScale)
+                    .ticks(6);
+
+                const gradient = legendSvg.append("defs")
+                    .append("linearGradient")
+                    .attr("id", "gradient")
+                    .attr("x1", "0%")
+                    .attr("y1", "100%")
+                    .attr("x2", "0%")
+                    .attr("y2", "0%");
+
+                gradient.append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", d3.interpolateYlGnBu(1));
+                gradient.append("stop")
+                    .attr("offset", "25%")
+                    .attr("stop-color", d3.interpolateYlGnBu(0.75));
+                gradient.append("stop")
+                    .attr("offset", "50%")
+                    .attr("stop-color", d3.interpolateYlGnBu(0.5));
+                gradient.append("stop")
+                    .attr("offset", "75%")
+                    .attr("stop-color", d3.interpolateYlGnBu(0.25));
+                gradient.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", d3.interpolateYlGnBu(0));
+
+                legendSvg.append("rect")
+                    .attr("width", legendWidth - 1)
+                    .attr("height", legendHeight)
+                    .style("fill", "url(#gradient)");
+
+                // Add labels
+                legendSvg.append("text")
+                    .attr("x", legendWidth / 2)
+                    .attr("y", legendHeight + legendMargin.bottom)
+                    .attr("dy", "-0.3em")
+                    .style("text-anchor", "middle")
+                    .text("Low activation");
+
+                legendSvg.append("text")
+                    .attr("x", legendWidth / 2)
+                    .attr("y", -legendMargin.top)
+                    .attr("dy", "0.7em")
+                    .style("text-anchor", "middle")
+                    .text("High activation");
+            }
         });
     }
 });
