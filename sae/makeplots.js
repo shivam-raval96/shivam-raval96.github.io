@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    
+
     function makeFeatDirectionsPlot(data, index){
         d3.select("#feat_directions_"+ index).selectAll("*").remove();
         // Set dimensions
@@ -53,7 +55,9 @@ document.addEventListener("DOMContentLoaded", function() {
             .attr("y1", (d, i) => yScale(0))
             .attr("x2", (d, i) => xScale(scaler*d[0]))
             .attr("y2", (d, i) => yScale(scaler*d[1]))
-            .attr("stroke", (d, i) => colors[(i)%9]);
+            .attr("stroke", (d, i) => colors[(i)%9])
+            .attr("stroke-width", 3);
+            ;
 
         // Create points
         svg.selectAll(".point")
@@ -62,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .append("circle")
             .attr("cx", d => xScale(scaler*d[0]))
             .attr("cy", d => yScale(scaler*d[1]))
-            .attr("r", 5)
+            .attr("r", 7)
             .attr("fill", (d, i) => colors[i%9])
             .attr("class", "point");
     }
@@ -131,6 +135,64 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             function updatePlot(d, l, index) {
+                const insetWidth = 100;
+                const insetHeight = 100;
+                const insetMargin = { top: 10, right: 10, bottom: 10, left: 10 };
+
+                function drawActiveDirections(encodedData, directions) {
+                    insetPlot.selectAll("*").remove(); // Clear previous directions
+                    console.log(encodedData, directions)
+
+                    let [xExtent1,xExtent2] = d3.extent(directions, d => d[0])
+                    let [yExtent1,yExtent2] = d3.extent(directions, d => d[1])
+
+                    let maxVal = (d3.max([Math.abs(xExtent1),Math.abs(xExtent2),Math.abs(yExtent1),Math.abs(yExtent2)]))
+
+
+                    let scaler = 1
+
+
+                    // Create scales for inset plot
+                    const insetXScale = d3.scaleLinear()
+                        .domain([-maxVal,maxVal])
+                        .range([0, insetWidth - insetMargin.left - insetMargin.right]);
+
+
+                    const insetYScale = d3.scaleLinear()
+                        .domain([-maxVal,maxVal])
+                        .range([insetHeight - insetMargin.top - insetMargin.bottom, 0]);
+
+                    // Add border for inset plot
+                    insetPlot.append("rect")
+                    .attr("x", 0)
+                    .attr("y", 0)
+                    .attr("width", insetWidth)
+                    .attr("height", insetHeight)
+                    .attr("fill", "none")
+                    .attr("stroke", "black");
+
+
+                   
+                    directions.forEach((dir, i) => {
+                        const length = encodedData[i]; // Length of the direction line based on the encoded value
+                        if (length > 0) {
+                            insetPlot.append("line")
+                                .attr("x1", insetXScale(0))
+                                .attr("y1", insetYScale(0))
+                                .attr("x2", insetXScale(length * dir[0]))
+                                .attr("y2", insetYScale(length * dir[1]))
+                                .attr("stroke", colors[i % 9])
+                                .attr("stroke-width", 2);
+                
+                            insetPlot.append("circle")
+                                .attr("cx", insetXScale(length * dir[0]))
+                                .attr("cy", insetYScale(length * dir[1]))
+                                .attr("r", 3)
+                                .attr("fill", colors[i % 9]);
+                        }
+                    });
+                }
+                
                 const key = `${d}_${l}`;
                 makeFeatDirectionsPlot(data[key].directions, index)
                 const reconstructed = data[key].reconstructed;
@@ -148,6 +210,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 // Clear previous elements
                 svg.selectAll("*").remove();
                 d3.select("#barplot_" + index).selectAll("*").remove();
+
+                // Add inset plot for active directions
+                const insetPlot = svg.append("g")
+                .attr("transform", `translate(${width - insetWidth - margin.right+55}, ${height - insetHeight - margin.bottom +80})`)
+                .attr("class", "inset-plot")
+                .style("background-color", "white");
+
+                
 
                 // Draw lines connecting corresponding points
                 const lines = svg.selectAll("line")
@@ -182,12 +252,16 @@ document.addEventListener("DOMContentLoaded", function() {
                         d3.select(this).attr("r", r_big).attr("opacity", 1).raise(); // Enlarge hovered data point
                         d3.select(`.rec-point-${i}`).attr("r", r_big).attr("opacity", 1).raise(); // Enlarge corresponding reconstructed point
                         fillBarPlot(encoded[i], currentD, cmapRange);
+                        drawActiveDirections(encoded[i], data[key].directions);
+
                     })
                     .on("mouseout", function(event, d) {
                         const i = data.data.indexOf(d);
                         d3.select(this).attr("r", r_small).attr("opacity", 0.7); // Reset data point size
                         d3.select(`.rec-point-${i}`).attr("r", r_small).attr("opacity", 0.7); // Reset corresponding reconstructed point size
                         clearBarPlot();
+                        insetPlot.selectAll("*").remove(); // Clear inset plot
+
                     });
 
                 // Plot reconstructed points
@@ -209,12 +283,16 @@ document.addEventListener("DOMContentLoaded", function() {
                     d3.select(this).attr("r", r_big).attr("opacity", 1).raise(); // Enlarge hovered reconstructed point
                     d3.select(`.data-point-${i}`).attr("r", r_big).attr("opacity", 1).raise(); // Enlarge corresponding data point
                     fillBarPlot(encoded[i], currentD, cmapRange);
+                    drawActiveDirections(encoded[i], data[key].directions); 
+
                 })
                 .on("mouseout", function(event, d) {
                     const i = reconstructed.indexOf(d);
                     d3.select(this).attr("r", r_small).attr("opacity", 0.7); // Reset reconstructed point size
                     d3.select(`.data-point-${i}`).attr("r", r_small).attr("opacity", 0.7); // Reset corresponding data point size
                     clearBarPlot();
+                    insetPlot.selectAll("*").remove(); // Clear inset plot
+
                 });
 
 
