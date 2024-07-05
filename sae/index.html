@@ -27,7 +27,7 @@
 <dt-article >
   <div class="l-page">
   <h1>An exploration of sparse autoencoders trained on synthetic data</h1>
-    <h2>[Under construction. Note: the text and some interactive visuals are still in the experimental phase and might be modified in the next iteration]</h2>
+    <h2>[Under construction. Note: the text is rough and some interactive visuals are still in the experimental phase and might be modified in the next iteration]</h2>
     <dt-byline></dt-byline>
     <p>The Anthropic interpretability team recently showed Sparse Autoencoders (SAEs) can extract interpretable 
       concepts from Claude 3 Sonnet<dt-cite key="templeton2024scaling"></dt-cite>. In the following weeks, 
@@ -128,7 +128,7 @@ At stronger sparsity regularization (larger lambda) the reconstructions show the
       <center>
       <p>Encoded activations</p>
       <div id="barplot_0"></div>
-      <p> * Maximum value for a neuron is shown in grey</p>
+      <p> * Maximum value for a neuron is shown in grey. Hover on the individual bars to highlight points that have high magnitude for that dimension.</p>
     </center>
     </div>
   </div>
@@ -190,7 +190,7 @@ At stronger sparsity regularization (larger lambda) the reconstructions show the
         <center>
         <p>Encoded activations</p>
         <div id="barplot_1"></div>
-        <p> * Maximum value for a neuron is shown in grey</p>
+        <p> * Maximum value for a neuron is shown in grey. Hover on the individual bars to highlight points that have high magnitude for that dimension.</p>
       </center>
       </div>
     </div>
@@ -237,7 +237,7 @@ At stronger sparsity regularization (larger lambda) the reconstructions show the
         <center>
         <p>Encoded activations</p>
         <div id="barplot_2"></div>
-        <p> * Maximum value for a neuron is shown in grey</p>
+        <p> * Maximum value for a neuron is shown in grey. Hover on the individual bars to highlight points that have high magnitude for that dimension.</p>
       </center>
       </div>
     </div>
@@ -268,8 +268,16 @@ At stronger sparsity regularization (larger lambda) the reconstructions show the
     <dt-cite key="Anthropic2023"></dt-cite>  </p>
   <b>Reproducibility:</b>
   <dt-code block language="python">
-    np.random.seed(42)
-    torch.manual_seed(42)
+    def set_seed(seed):
+        np.random.seed(seed)
+        random.seed(seed)
+        t.manual_seed(seed)
+        t.cuda.manual_seed(seed)
+        t.cuda.manual_seed_all(seed)
+        t.backends.cudnn.deterministic = True
+        t.backends.cudnn.benchmark = False
+
+    set_seed(42)
   </dt-code>
   <b>Model definition</b> (Also refer to <a href="https://colab.research.google.com/drive/15S4ISFVMQtfc0FPi29HRaX03dWxL65zx?usp=sharing"> this colab notebook</a> for detailed exercises on defining and training SAEs)
   <dt-code block language="python">
