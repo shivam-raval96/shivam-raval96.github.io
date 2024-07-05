@@ -20,23 +20,23 @@
   authors:
   - TBD: https://shivam-raval96.github.io/
   affiliations:
-  - Harvard University
+  - Harvard University 
 </script>
 
 
 <dt-article >
   <div class="l-page">
   <h1>An exploration of sparse autoencoders trained on synthetic data</h1>
-    <h2>[Under construction]</h2>
+    <h2>[Under construction. Note: the text and some interactive visuals are still in the experimental phase and might be modified in the next iteration]</h2>
     <dt-byline></dt-byline>
     <p>The Anthropic interpretability team recently showed Sparse Autoencoders (SAEs) can extract interpretable 
       concepts from Claude 3 Sonnet<dt-cite key="templeton2024scaling"></dt-cite>. In the following weeks, 
-      OpenAI <dt-cite key="gao2024scalingsae"></dt-cite> and  DeepMind <dt-cite key="templeton2024scaling"></dt-cite> showcased similar results using their own variant autoencoders, Gated SAEs (DeepMind) and K-Sparse AEs (OpenAI)
+      OpenAI <dt-cite key="gao2024scalingsae"></dt-cite> and  DeepMind <dt-cite key="templeton2024scaling"></dt-cite> showcased similar results using their own variant autoencoders, Gated SAEs (DeepMind) and K-Sparse AEs (OpenAI).
       
       
       We would like to understand how these models work, what sort of features they can learn, and replicate some of the phenomena observed in large models ourselves. 
-      For our experiments we will train small models on synthetic data, but in a similar fashion to these works, and mechanistically study the trained models.
-      Two phenomena observed while training the model are quite interesting: <a href="https://www.alignmentforum.org/posts/3JuSjTZyMzaSeTxKk/addressing-feature-suppression-in-saes">"Shrinkage"</a> <dt-cite key="Wright2024shrinkage"></dt-cite> and <a href="https://transformer-circuits.pub/2023/monosemantic-features/index.html#phenomenology-feature-splitting">"Splitting"</a> <dt-cite key="bricken2023monosemanticity"></dt-cite>.
+      For our experiments we will train small models on synthetic data and mechanistically study the trained models and the features they encode.
+      Two phenomena observed while training the vanilla SAEs with L1 sparsity are quite interesting: <a href="https://www.alignmentforum.org/posts/3JuSjTZyMzaSeTxKk/addressing-feature-suppression-in-saes">"Shrinkage"</a> <dt-cite key="Wright2024shrinkage"></dt-cite> and <a href="https://transformer-circuits.pub/2023/monosemantic-features/index.html#phenomenology-feature-splitting">"Splitting"</a> <dt-cite key="bricken2023monosemanticity"></dt-cite>.
     </p>
 
     
@@ -99,7 +99,7 @@
 <div class="l-page "> 
 Let us see this reconstruction shrinkage in action: we will train an SAE on data sampled from a unit circle in 2D. 
 The sliders vary hyperparameters for the SAE: the lambda controls the strength of the regularization, and the hidden dimension is the number of neurons in the output of the encoder or the input of the decoder (or equivalently the number of feature directions that the SAE can find).
-At stronger sparsity regularization (larger lambda) the reconstructions do show a shrinkage effect, collapsing down to a point in an extreme case.
+At stronger sparsity regularization (larger lambda) the reconstructions show the shrinkage effect, collapsing down to a point in an extreme case. Also, since the original data is symmetric, the best the model can do is find orthogonal directions to encode the data (it requires 4 directions to do that since we have used ReLU activation, which only allows positive activation magnitude).
 <br/>
 
 <div style="display: flex;">
@@ -109,7 +109,7 @@ At stronger sparsity regularization (larger lambda) the reconstructions do show 
     <input type="range" id="d-slider_0" min="0" max="8" step="1"  value="4" ></p>
     <label for="l-slider_0"><p>lambda:</label><span id="l-value_0">0.1</span>
     <input type="range" id="l-slider_0" min="0" max="12" step="1" value="4"></p>
-
+      <br/>
     <p>Learned feature directions</p>
 
     <div id="feat_directions_0" style="border:1px solid black;margin:5px"></div>
@@ -194,28 +194,61 @@ At stronger sparsity regularization (larger lambda) the reconstructions do show 
       </center>
       </div>
     </div>
+    <p> Note that here too, the structure of the data is symmetric, so the model is better off learning symmetric feature directions, in this case they are equiangular at angle 2\(\pi\)/3.</p>
+
   </div>
   </div>
 
 
 <div class="l-page"> 
-  <h2>When does feature splitting occur? <a href="https://transformer-circuits.pub/2023/monosemantic-features/index.html#phenomenology-feature-splitting">[From Anthropic]</a> </h2>
+  <h2>When does feature splitting occur? <a href="https://transformer-circuits.pub/2023/monosemantic-features/index.html#phenomenology-feature-splitting">[Placeholder: Excerpt from Anthropic's work]</a> </h2>
     <img src="./img/splitting.png" width="800px">
   
   </div>
 
+  <div class="l-page"> 
+    <h2>How does an SAE deal with features of different density?</h2>
+    <p> Here is an example of four gaussian clusters with different densities and orientations. If the original data is not symmetric, then learning symmetric directions is not optimal for reconstruction (though it can learn them under high sparsity constraints, eg.  at h_dim = 3 and lambda = 1). But interestingly, model dedicates specific feature feature directions for higher density clusters.
 
+    </p>
+  <div style="display: flex;">
+    <center>
+    <div class="slider-container" >
+      <label for="d-slider_2"><p>h_dim:</label> <span id="d-value_2">15</span>
+      <input type="range" id="d-slider_2" min="0" max="5" step="1"  value="3" ></p>
+      <label for="l-slider_2"><p>lambda:</label><span id="l-value_2">0.3</span>
+      <input type="range" id="l-slider_2" min="0" max="9" step="1" value="1"></p>
+  
+      <p>Learned feature directions</p>
+  
+      <div id="feat_directions_2" style="border:1px solid black;margin:5px"></div>
+    </div>
+  </center>
+
+    <div>
+      <center>
+      <p><span style="color:steelblue">Original data</span> along with its <span style="color:#ff6666">reconstructions</span></p>
+      <div id="scatterplot_2" style="border:1px solid black;margin:20px"></div>
+    </center>
+
+    </div>
+
+      <div>
+        <center>
+        <p>Encoded activations</p>
+        <div id="barplot_2"></div>
+        <p> * Maximum value for a neuron is shown in grey</p>
+      </center>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>
 
   <div class="l-page"> 
     <h2>Dead Neurons and Resampling</h2>
-    
+    [Coming soon]
   </div>
-
-
-<div class="l-page"> 
-  <h2>Gated SAEs</h2>
-  [Coming soon]
-</div>
 
 
 
@@ -238,201 +271,699 @@ At stronger sparsity regularization (larger lambda) the reconstructions do show 
     np.random.seed(42)
     torch.manual_seed(42)
   </dt-code>
-  <b>Model definition:</b>
+  <b>Model definition</b> (Also refer to <a href="https://colab.research.google.com/drive/15S4ISFVMQtfc0FPi29HRaX03dWxL65zx?usp=sharing"> this colab notebook</a> for detailed exercises on defining and training SAEs)
   <dt-code block language="python">
-    class SparseAutoencoder(nn.Module):
-    def __init__(self, input_dim, hidden_dim):
-        super(SparseAutoencoder, self).__init__()
-        self.encoder = nn.Linear(input_dim, hidden_dim, bias=False)  
-        self.decoder = nn.Linear(hidden_dim, input_dim, bias=False)  
-        self.b_dec = nn.Parameter(torch.zeros(input_dim))  
-        self.b_enc = nn.Parameter(torch.zeros(hidden_dim))  
+    @dataclass
+    class SparseAutoEncoderConfig:
+        n_instances: int
+        n_input_ae: int
+        n_hidden_ae: int
+        lambda_coeff: float = 0.5
+        tied_weights: bool = False
+        reg_power: float = 1.0
+        activation: str = 'relu'
+        standardize_data: bool = True
+        reg_type: str = 'l1'
+        k:int = 2
     
-    def forward(self, x):
-        # Encoder
-        x_centered = x - self.b_dec 
-        encoded = F.relu(self.encoder(x_centered) + self.b_enc)  
-        
-        # Decoder
-        decoded = self.decoder(encoded) + self.b_dec  
-        return decoded, encoded
-  </dt-code>
-
-  <b>Simplified training function. Note:</b>
-  <p>1. All models were trained for 1000 epochs with Adam optimizer with lr = 0.001, with early stopping if the loss does not reduce for 200 epochs.</p>
-  <p>2. After each optimizer step, decoder weights are normalized to have unit norm.</p>
-
-  <dt-code block language="python">
-  def train_sparse_autoencoder(model, dataloader, num_epochs, 
-  lambda_l1, learning_rate=0.001, early_stop = True):
-  
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    patience = 200  
-    best_loss = float('inf')
-    patience_counter = 0
+    class SparseAutoEncoder(nn.Module):
+        W_enc: Float[Tensor, "n_instances n_input_ae n_hidden_ae"]
+        W_dec: Float[Tensor, "n_instances n_hidden_ae n_input_ae"]
+        b_enc: Float[Tensor, "n_instances n_hidden_ae"]
+        b_dec: Float[Tensor, "n_instances n_input_ae"]
+            
+        def __init__(self, cfg: SparseAutoEncoderConfig, device='cpu'):
+            super().__init__()
+            self.cfg = cfg
+            self.device = device
+            self.istopk = False
     
-    for epoch in range(num_epochs):
-        epoch_loss = 0
-        for data in dataloader:
-            inputs = data[0]
             
-            outputs, encoded = model(inputs)
-            mse_loss = criterion(outputs, inputs)
+            # Initialize encoder weights using Xavier normal initialization
+            self.W_enc = nn.Parameter(nn.init.xavier_normal_(t.empty((cfg.n_instances, cfg.n_input_ae, cfg.n_hidden_ae))))
             
-            l1_penalty = lambda_l1 * torch.sum(torch.abs(encoded))
-            loss = mse_loss + l1_penalty
-            epoch_loss += loss.item()
-            
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            
-            # Normalize decoder weights to have unit norm
-            with torch.no_grad():
-                decoder_weights = model.decoder.weight.data
-                norms = torch.norm(decoder_weights, dim=1, keepdim=True)
-                model.decoder.weight.data = decoder_weights / norms
-                
-        epoch_loss /= len(dataloader)
-        if early_stop:
-            # Early stopping
-            if epoch_loss < best_loss:
-                best_loss = epoch_loss
-                patience_counter = 0
+            # Initialize decoder weights (if not using tied weights)
+            if not cfg.tied_weights:
+                self.W_dec = nn.Parameter(nn.init.xavier_normal_(t.empty((cfg.n_instances, cfg.n_hidden_ae, cfg.n_input_ae))))
             else:
-                patience_counter += 1
-
-            if patience_counter >= patience:
-                print(f'Early stopping at epoch {epoch + 1}, Loss: {epoch_loss:.4f}')
-                break
-
+                self.W_dec = None
+            
+            # Initialize biases    
+            self.b_enc = nn.Parameter(t.zeros(cfg.n_instances, cfg.n_hidden_ae))
+            self.b_dec = nn.Parameter(t.zeros(cfg.n_instances, cfg.n_input_ae))
+            
+            # Set activation function based on configuration
+            self.act = F.relu
+            if cfg.activation =='sigmoid':
+                self.act = F.sigmoid
+                        
+            if cfg.reg_type == 'topk':
+                self.istopk = True
+                self.k = self.cfg.k
+            # Move model to specified device
+            self.to(device)
+            
+        def forward(self, x: Float[Tensor, "batch_size n_instances n_input_ae"]):
+            # Center the input
+            x_centered = x - self.b_dec
+            
+            # Encoder: compute hidden representation
+            h = einops.einsum(
+                x_centered, self.W_enc, 
+                "batch_size n_instances n_input_ae, n_instances n_input_ae n_hidden_ae -> batch_size n_instances n_hidden_ae")
+            
+            # Apply activation function to get embedded representation
+            act = h + self.b_enc
+            if self.istopk:
+                topk_values, topk_indices = t.topk(act, self.k, dim=-1)
+                mask = t.zeros_like(act, dtype=t.bool)
+                mask.scatter_(-1, topk_indices, 1)
+                embedded = act * mask.float()
+            else:
+                embedded = self.act(act)
+            
+            # Decoder: reconstruct input
+            x_reconstructed = einops.einsum(
+                embedded, (self.W_enc.transpose(-1, -2) if self.cfg.tied_weights else self.W_dec), 
+                "batch_size n_instances n_hidden_ae, n_instances n_hidden_ae n_input_ae -> batch_size n_instances n_input_ae") + self.b_dec
+            
+            # Compute losses
+            sparsity_loss = t.zeros_like(embedded).sum(-1)
+            mse = ((x_reconstructed - x)**2).mean(-1)  # Mean squared error
+            if not self.istopk:
+                sparsity_loss = (embedded**self.cfg.reg_power).sum(-1)  # Sparsity regularization
+            l0_loss = t.sum(embedded != 0, axis = [0,2])/embedded.shape[0]  # L0 "norm" (fraction of non-zero activations)
+            
+            # Combine losses
+            loss = (mse + self.cfg.lambda_coeff * sparsity_loss).mean(0).sum()
+    
+            return loss, mse, sparsity_loss, embedded, x_reconstructed, l0_loss
         
-        if (epoch + 1) % 100 == 0:
-            print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}')
+        @t.no_grad()
+        def normalize_decoder(self) -> None:
+            # Normalize decoder weights to unit norm
+            if self.cfg.tied_weights:
+                self.W_enc.data = self.W_enc.data / self.W_enc.data.norm(dim=1, keepdim=True)
+            else:
+                self.W_dec.data = self.W_dec.data / self.W_dec.data.norm(dim=2, keepdim=True)
+    
+        @t.no_grad()
+        def resample_neurons(
+            self,
+            h: Float[Tensor, "batch_size n_instances n_hidden"],
+            frac_active_in_window: Float[Tensor, "window n_instances n_hidden_ae"],
+            neuron_resample_scale: float,
+        ) -> None:
+            '''
+            Resamples neurons that have been dead for `dead_neuron_window` steps, according to `frac_active`.
+            '''
+            # Create a mask for dead neurons
+            dead_features_mask = t.empty((self.cfg.n_instances, self.cfg.n_hidden_ae), dtype=t.bool, device=self.W_enc.device)
+    
+            for instance in range(self.cfg.n_instances):
+                # Identify dead neurons (those that haven't been active in the window)
+                is_dead = (frac_active_in_window[:, instance].sum(0) < 1e-8)
+                dead_features_mask[instance] = is_dead
+                dead_features = t.nonzero(is_dead).squeeze(-1)
+                n_dead = dead_features.numel()
+                if n_dead == 0: continue
+    
+                # Generate new random values for dead neurons
+                replacement_values = t.randn((n_dead, self.cfg.n_input_ae), device=self.W_enc.device)
+                replacement_values_normalized = replacement_values / (replacement_values.norm(dim=-1, keepdim=True) + 1e-8)
+    
+                # Replace weights for dead neurons
+                self.W_dec.data[instance, dead_features, :] = replacement_values_normalized
+                self.W_enc.data[instance, :, dead_features] = replacement_values_normalized.T
+                self.b_enc.data[instance, dead_features] = 0.0
+    
+        def get_test_loss(self, batch_size):
+            # Generate a batch of test data
+            x, _ = self.data_generator.generate_batch(batch_size, self.cfg.n_instances)
+            x = x.permute(1, 0, 2)
+            
+            # Compute loss on test data
+            loss, mse, sparsity_loss, embedded, x_reconstructed, l0_loss = self.forward(x)
+            
+            return loss, mse, sparsity_loss, l0_loss
+        
+        def extract_feature_directions(self, runs):
+            d = self.cfg.n_hidden_ae
+        
+            # Accumulate activations over multiple runs
+            activations = t.zeros([1, d])
+            for i in range(runs):
+                n = 256
+                x, _ = self.data_generator.generate_batch(n, 1,)
+                x = x.permute(1, 0, 2)
+                _, _, _, embedded, x_reconstructed, l0_loss = autoencoder.forward(x)
+                activations += embedded.mean(axis=[0])
+            return activations / runs
+    
+        def optimize(
+            self,
+            data_generator: DataGenerator,
+            batch_size: int = 1024,
+            steps: int = 10_000,
+            log_freq: int = 100,
+            lr: float = 1e-3,
+            lr_scale: Callable[[int, int], float] = lambda step, steps: 1.0,
+            neuron_resample_window: Optional[int] = None,
+            dead_neuron_window: Optional[int] = None,
+            neuron_resample_scale: float = 0.2,
+        ):
+            self.data_generator = data_generator
+            # Validation check for neuron resampling parameters
+            if neuron_resample_window is not None:
+                assert (dead_neuron_window is not None) and (dead_neuron_window < neuron_resample_window)
+    
+            # Initialize optimizer
+            optimizer = t.optim.Adam(list(self.parameters()), lr=lr)
+            frac_active_list = []
+            pbar = tqdm(range(steps))
+    
+            # Initialize data logging
+            data_log = {"feature_directions": [], "l0_loss": [], "MSE_loss": [], "SP_loss": []}
+            #colors = None
+            
+            for step in pbar:
+                self.normalize_decoder()
+                
+                # Resample dead neurons if needed
+                if (neuron_resample_window is not None) and ((step + 1) % neuron_resample_window == 0):
+                    frac_active_in_window = t.stack(frac_active_list[-neuron_resample_window:], dim=0)
+                    batch, _ = data_generator.generate_batch(batch_size, self.cfg.n_instances)
+                    batch = batch.permute(1, 0, 2)
+                    _, _, _, embedded, _, _ = self.forward(x)
+                    self.resample_neurons(embedded, frac_active_in_window, neuron_resample_scale)
+    
+                # Generate batch and prepare input
+                x, _ = self.data_generator.generate_batch(batch_size, self.cfg.n_instances)
+                x = x.permute(1, 0, 2)
+                
+                # Update learning rate
+                step_lr = lr * lr_scale(step, steps)
+                for group in optimizer.param_groups:
+                    group['lr'] = step_lr
+                
+                # Perform optimization step
+                optimizer.zero_grad()
+                loss, mse, sparsity_loss, embedded, x_reconstructed, l0_loss = self.forward(x)
+                loss, mse, sparsity_loss, l0_loss = self.get_test_loss(batch_size)
+                loss.backward()
+                optimizer.step()
+                
+                # Calculate fraction of active neurons
+                frac_active = einops.reduce((embedded.abs() > 1e-8).float(), "batch_size instances hidden_ae -> instances hidden_ae", "mean")
+                frac_active_list.append(frac_active)
+                
+                # Log data periodically
+                if step % log_freq == 0 or (step + 1 == steps):
+                    act = self.extract_feature_directions(100)
+                    data_log["feature_directions"].append((self.W_enc*act).detach().cpu().numpy())
+                    pbar.set_postfix(loss=loss.item(), lr=step_lr)
+                    data_log["l0_loss"].append(l0_loss.detach().cpu().numpy())
+                    data_log["MSE_loss"].append(mse.mean(axis=0).unsqueeze(0).detach().cpu().numpy())
+                    data_log["SP_loss"].append(sparsity_loss.mean(axis=0).unsqueeze(0).detach().cpu().numpy())
+                    data_log["titles"].append(f"Step {step}/{steps}")
+                
+            return data_log
   </dt-code>
 
+  <b>Note:</b>
+  <p>1. All models were trained for 22000 epochs with Adam optimizer with lr = 0.001.</p>
+  <p>2. After each optimizer step, decoder weights are normalized to have unit norm.</p>
+  <p>3. Every 2500 epochs, neurons that have been dead for 400 epochs are resampled with probability 0.8</p>
 
-  <b>Extract and plot feature directions, original and reconstructed data:</b>
+
+  <b>Dataset Generator:</b>
   <dt-code block language="python">
-  def extract_feature_directions(model):
-      with torch.no_grad():
-          decoder_weights = model.decoder.weight.data
-          encoder_weights = model.encoder.weight.data
-
-          # Each row of the weight matrix is a feature direction
-          feature_directions = decoder_weights.clone()
-          activations = encoder_weights.mean(axis=1).clone().cpu().numpy()
-
-      return feature_directions.T, activations
-
-  def plot_feature_directions(data, reconstructed, feature_directions, activations, title):
-      range_x = [1.1 * data[:, 0].min(), 1.1 * data[:, 0].max()]
-      range_y = [1.1 * data[:, 1].min(), 1.1 * data[:, 1].max()]
-
-      fig = plt.figure(figsize=(6, 6))
-      ax = fig.add_subplot()
-
-      origin = np.array([0, 0, 0])
-      ax.scatter(data[:, 0], data[:, 1], alpha=0.5, s=10, label='Original data')
-      ax.scatter(reconstructed[:, 0], reconstructed[:, 1], alpha=0.5, color='r', s=10, label='Reconstructed data')
-
-      for i in range(len(activations)):
-          ax.plot(
-              [origin[0], feature_directions[i, 0] * activations[i]],
-              [origin[1], feature_directions[i, 1] * activations[i]],
-              color='limegreen', linewidth=3
-          )
-          ax.plot(
-              [origin[0], -feature_directions[i, 0] * activations[i]],
-              [origin[1], -feature_directions[i, 1] * activations[i]],
-              color='limegreen', linewidth=3
-          )
-
-      feature_direction_proxy = plt.Line2D([0], [0], color='limegreen', linewidth=3)
-      handles, labels = ax.get_legend_handles_labels()
-      handles.append(feature_direction_proxy)
-      labels.append('Feature directions')
-      
-      ax.legend(handles=handles, labels=labels, loc="upper right")
-      plt.xticks([])
-      plt.yticks([])
-      plt.gca().set_aspect('equal')
-      plt.xlim(range_x)
-      plt.ylim(range_y)
-      plt.savefig(title)
-      plt.show()
-  </dt-code>
-
-  <b>Generate "Spokes" dataset:</b>
-  <dt-code block language="python">
-      def generate_spokes(num_vectors=3, num_points_per_vector=100, dim=3, scale_range=(0, 1)):
-
-      # Generate random vectors in n dimensions
-      vectors = np.random.randn(num_vectors, dim)
-      
-      # Initialize the list to collect points
-      points = []
-      
-      for v in vectors:
-          # Generate random scaling factors for the points along this vector
-          scales = 2*np.random.random( num_points_per_vector)
-          # Generate points along the vector
-          for a in scales:
-              points.append(a * v)
-      
-      # Convert the list of points to a numpy array
-      points_array = np.array(points)
-      
-      return points_array.astype(np.float32)
-
-  # Example usage
-  data = generate_spokes(num_vectors=5, num_points_per_vector=200, dim=20, scale_range=(0, 5))
-  </dt-code>
-
-  <b>Generate multiple gaussians dataset:</b>
-  <dt-code block language="python">
-      def sample_from_mixture_with_labels(n_points, means, covariances, weights):
-      
-      n_gaussians = len(means)  # The number of Gaussians in the mixture
-      d = means[0].shape[0]  # The dimensionality of the space
-      
-      # Validate inputs
-      assert len(covariances) == n_gaussians, "Each Gaussian must have a covariance matrix."
-      assert len(weights) == n_gaussians, "Each Gaussian must have a mixing weight."
-      assert np.isclose(sum(weights), 1), "The mixing weights must sum to 1."
-      
-      # Choose which Gaussian each point will come from
-      choices = np.random.choice(n_gaussians, size=n_points, p=weights)
-      
-      # Initialize an array to hold the generated samples
-      samples = np.zeros((n_points, d))
-      labels = np.zeros(n_points, dtype=int)
-      
-      # Generate samples from the chosen Gaussians
-      for i in range(n_gaussians):
-          # Number of points to sample from this Gaussian
-          n_samples = np.sum(choices == i)
-          
-          if n_samples > 0:
-              samples[choices == i] = np.random.multivariate_normal(
-                  mean=means[i],
-                  cov=covariances[i],
-                  size=n_samples
-              )
-              labels[choices == i] = i
-      
-      return samples.astype(np.float32), labels
-
-
-  #Example usage:
-  n_points = 1000  # Number of points to generate
-  dim = 20  # Dimensionality of the space
-
-  means = [np.full(dim, -2), np.full(dim, 2),np.full(dim, 0)]  
-  covariances = [np.eye(dim) * 1,  np.eye(dim) * 1,np.eye(dim) * 1] 
-  weights = [0.33,0.33,0.34] 
-  data, labels = sample_from_mixture_with_labels(n_points, means, covariances, weights)
+    @dataclass
+    class DatasetConfig:
+        n_points: int = 1000  # Total number of points to generate
+        n_input_ae: int = 3   # Dimensionality of input data (3 for 3D data)
+        dataset: str = 'circle'  # Type of dataset to generate
+        n_lines: int = 5  # Number of lines/spokes in certain datasets
+    
+    class DataGenerator:
+        def __init__(self, cfg: DatasetConfig, device: str = 'cpu', seed: int = None):
+            """
+            Initialize the DataGenerator with configuration settings.
+    
+            Args:
+                cfg (DatasetConfig): Configuration for dataset generation
+                device (str): Device to use for tensor operations
+                seed (int): Seed for random number generation
+            """
+            self.cfg = cfg
+            self.device = device
+            self.n_lines = self.cfg.n_lines
+            self.dataset = cfg.dataset
+            
+            # Set random seed for reproducibility if provided
+            if seed is not None:
+                np.random.seed(seed)
+                t.manual_seed(seed)
+    
+            # Dictionary mapping dataset names to their respective generation functions
+            self.data_generators = {
+                'circle': self.circle,
+                'spokes': self.spokes,
+                'bunchedspokes': self.bunched_spokes,
+                'spokesabs3d': self.spokes_abs3d,
+                'swissroll': self.swiss_roll,
+                'scurve': self.s_curve,
+                'rand_unitnorm': self.rand_unit_norm,
+                'sparsebinary': self.sparse_binary,
+                'multiplegaussians': self.multiple_gaussians
+    
+            }
+    
+            if self.dataset not in self.data_generators:
+                raise ValueError(f"Unknown dataset type: {self.dataset}")
+    
+            self.data_generator = self.data_generators[self.dataset]
+    
+        def generate_batch(self, batch_size: int, n_instances: int, **kwargs) -> tuple[t.Tensor, np.ndarray]:
+            """
+            Generate a batch of data instances.
+    
+            Args:
+                batch_size (int): Number of points per instance
+                n_instances (int): Number of instances to generate
+                **kwargs: Additional arguments for the data generator
+    
+            Returns:
+                tuple: (Tensor of data points, array of labels)
+            """
+            data_list, label_list = zip(*[self.data_generator(num_points=batch_size, **kwargs) for _ in range(n_instances)])
+            self.data = t.stack(data_list)
+            return self.data, np.array(label_list)
+    
+        def circle(self, num_points: int = 100, noise_level: float = 0.01, radius: float = 1.0) -> t.Tensor:
+            """
+            Generate points along a 2D circle with added Gaussian noise.
+    
+            Args:
+                num_points (int): Number of points to generate
+                noise_level (float): Standard deviation of the Gaussian noise
+                radius (float): Radius of the circle
+    
+            Returns:
+                t.Tensor: Tensor of shape (num_points, 2) containing the noisy circle points
+            """
+            theta = np.linspace(0, 2 * np.pi, num_points)
+            x = radius * np.cos(theta)
+            y = radius * np.sin(theta)
+            circle_points = np.stack((x, y), axis=-1)
+            noise = np.random.normal(scale=noise_level, size=circle_points.shape)
+            noisy_circle_points = circle_points + noise
+            return t.tensor(noisy_circle_points.astype(np.float32), device=self.device)
+    
+        def spokes(self, num_points: int = 50, num_lines: int = 5, sparsity: float = 0.0, offset: float = 0, sameMaxDist: bool = True) -> tuple[t.Tensor, Dict[str, Any]]:
+            """
+            Generate sparse points along equiangular lines in 2D.
+    
+            Args:
+                num_points (int): Total number of points to generate
+                num_lines (int): Number of equiangular lines
+                sparsity (float): Fraction of points that should be zero
+                offset (float): Angular offset for the lines
+                sameMaxDist (bool): If True, all points have the same max distance from origin
+    
+            Returns:
+                tuple: (Tensor of points, dict with labels and colors)
+            """
+            if not 0 <= sparsity < 1:
+                raise ValueError("Sparsity must be between 0 and 1")
+            if num_points <= num_lines:
+                raise ValueError("Number of points must be greater than number of lines")
+    
+            angles = np.linspace(offset, 2 * np.pi + offset, num_lines, endpoint=False)
+            num_zero_points = int(num_points * sparsity)
+            num_nonzero_points = num_points - num_zero_points
+    
+            points = []
+            labels = []
+    
+            # Ensure each line has at least one point
+            points_per_line = np.full(num_lines, 1)
+            remaining_points = num_nonzero_points - num_lines
+    
+            # Distribute remaining points randomly among lines
+            while remaining_points > 0:
+                chosen_line = np.random.choice(num_lines)
+                points_per_line[chosen_line] += 1
+                remaining_points -= 1
+    
+            # Generate non-zero points along each line
+            for i, angle in enumerate(angles):
+                num_points_on_line = points_per_line[i]
+                max_distance = 1 if sameMaxDist else np.random.rand() * 2
+                for _ in range(num_points_on_line):
+                    r = np.random.rand() * max_distance
+                    x = r * np.cos(angle)
+                    y = r * np.sin(angle)
+                    points.append([x, y])
+                    labels.append(i)
+    
+            points = np.array(points)
+            labels = np.array(labels)
+    
+            # Add zero points
+            zero_points = np.zeros((num_zero_points, 2))
+            zero_labels = np.full(num_zero_points, -1)
+            all_points = np.vstack([points, zero_points])
+            all_labels = np.concatenate([labels, zero_labels])
+    
+            # Shuffle the points and labels together
+            indices = np.arange(len(all_points))
+            np.random.shuffle(indices)
+            all_points = all_points[indices]
+            all_labels = all_labels[indices]
+    
+            return t.tensor(all_points.astype(np.float32), device=self.device), {'labels': all_labels, 'colors': []}
+    
+        def bunched_spokes(self, num_points: int = 50, main_num_lines: int = 3, close_lines_multiplier: int = 1, angle_offset: float = 0.4, sparsity: float = 0.0, sameMaxDist: bool = True) -> tuple[t.Tensor, Dict[str, Any]]:
+            """
+            Generate sparse points along main equiangular lines with additional close lines in 2D.
+    
+            Args:
+                num_points (int): Total number of points to generate
+                main_num_lines (int): Number of main equiangular lines
+                close_lines_multiplier (int): Number of lines close to each main line
+                angle_offset (float): Angular offset for the close lines
+                sparsity (float): Fraction of points that should be zero
+                sameMaxDist (bool): If True, all points have the same max distance from origin
+    
+            Returns:
+                tuple: (Tensor of points, dict with labels and colors)
+            """
+            if not 0 <= sparsity < 1:
+                raise ValueError("Sparsity must be between 0 and 1")
+    
+            total_lines = main_num_lines * (1 + close_lines_multiplier * 2)
+            main_angles = np.linspace(0, 2 * np.pi, main_num_lines, endpoint=False)
+    
+            # Generate angles for all lines (main and close)
+            all_angles = []
+            for angle in main_angles:
+                all_angles.append(angle)
+                for i in range(1, close_lines_multiplier + 1):
+                    all_angles.append(angle + i * angle_offset)
+                    all_angles.append(angle - i * angle_offset)
+            all_angles = np.array(all_angles)
+    
+            num_zero_points = int(num_points * sparsity)
+            num_nonzero_points = num_points - num_zero_points
+    
+            points_per_line = num_nonzero_points // total_lines
+            extra_points = num_nonzero_points % total_lines
+    
+            points = []
+            colors = {}
+            labels = []
+            base_colors = list(mcolors.TABLEAU_COLORS.values())
+    
+            # Generate non-zero points along each line
+            for i, angle in enumerate(all_angles):
+                main_line_index = i // (1 + 2 * close_lines_multiplier)
+                base_color = base_colors[main_line_index % len(base_colors)]
+    
+                # Create a color variant with decreasing alpha for close lines
+                color_variant = mcolors.to_rgba(base_color)
+                alpha = 1.0 - (0.05 * (i % (1 + 2 * close_lines_multiplier)))
+                variant_color = (color_variant[0], color_variant[1], color_variant[2], alpha)
+    
+                num_points_on_line = points_per_line + (1 if i < extra_points else 0)
+                max_distance = 1 if sameMaxDist else np.random.rand() * 2
+    
+                for _ in range(num_points_on_line):
+                    r = np.random.rand() * max_distance
+                    x = r * np.cos(angle)
+                    y = r * np.sin(angle)
+                    points.append([x, y])
+                    
+                    if i not in colors:
+                        colors[i] = variant_color
+                    labels.append(i)
+    
+            points = np.array(points)
+            labels = np.array(labels)
+    
+            # Add zero points
+            zero_points = np.zeros((num_zero_points, 2))
+            all_points = np.vstack([points, zero_points])
+    
+            # Shuffle the points and labels together
+            indices = np.arange(len(all_points))
+            np.random.shuffle(indices)
+            all_points = all_points[indices]
+            labels = labels[indices]
+    
+            return t.tensor(all_points.astype(np.float32), device=self.device), {'labels': labels, 'colors': colors}
+    
+        def spokes_abs3d(self, num_points: int = 50, num_lines: int = 5, sparsity: float = 0.0, offset: float = 0, sameMaxDist: bool = True, v_scale: float = 1.0) -> Tuple[t.Tensor, Dict[str, Any]]:
+            """
+            Generate sparse points along equiangular lines in 3D, with a V-shaped absolute curve in the third dimension.
+    
+            Args:
+                num_points (int): Total number of points to generate
+                num_lines (int): Number of equiangular lines
+                sparsity (float): Fraction of points that should be zero
+                offset (float): Angular offset for the lines
+                sameMaxDist (bool): If True, all points have the same max distance from origin in xy-plane
+                v_scale (float): Scale factor for the V-shaped curve in the third dimension
+    
+            Returns:
+                tuple: (Tensor of 3D points, dict with labels and colors)
+            """
+            if not 0 <= sparsity < 1:
+                raise ValueError("Sparsity must be between 0 and 1")
+            if num_points <= num_lines:
+                raise ValueError("Number of points must be greater than number of lines")
+    
+            angles = np.linspace(offset, 2 * np.pi + offset, num_lines, endpoint=False)
+            num_zero_points = int(num_points * sparsity)
+            num_nonzero_points = num_points - num_zero_points
+    
+            points = []
+            labels = []
+    
+            # Ensure each line has at least one point
+            points_per_line = np.full(num_lines, 1)
+            remaining_points = num_nonzero_points - num_lines
+    
+            # Distribute remaining points randomly among lines
+            while remaining_points > 0:
+                chosen_line = np.random.choice(num_lines)
+                points_per_line[chosen_line] += 1
+                remaining_points -= 1
+    
+            # Generate non-zero points along each line
+            for i, angle in enumerate(angles):
+                num_points_on_line = points_per_line[i]
+                max_distance = 1 if sameMaxDist else np.random.rand() * 2
+                for _ in range(num_points_on_line):
+                    r = np.random.rand() * max_distance
+                    x = r * np.cos(angle)
+                    y = r * np.sin(angle)
+                    
+                    # Add V-shaped absolute curve in the third dimension
+                    z = v_scale * np.abs(r - 0.5)
+                    
+                    points.append([x, y, z])
+                    labels.append(i)
+    
+            points = np.array(points)
+            labels = np.array(labels)
+    
+            # Add zero points
+            zero_points = np.zeros((num_zero_points, 3))
+            zero_labels = np.full(num_zero_points, -1)
+            all_points = np.vstack([points, zero_points])
+            all_labels = np.concatenate([labels, zero_labels])
+    
+            # Shuffle the points and labels together
+            indices = np.arange(len(all_points))
+            np.random.shuffle(indices)
+            all_points = all_points[indices]
+            all_labels = all_labels[indices]
+    
+            return t.tensor(all_points.astype(np.float32), device=self.device), {'labels': all_labels, 'colors': []}
+        
+        
+        def swiss_roll(self, num_points=1000, noise=0.0, random_state=None, hole = True):
+            """
+            Generate a Swiss roll dataset.
+    
+            Parameters:
+            - n_samples: int, number of sample points
+            - noise: float, standard deviation of Gaussian noise
+            - random_state: int, random seed for reproducibility
+            - hole: bool, add a hole in the manifold
+    
+    
+            Returns:
+            - data: ndarray of shape (n_samples, 3)
+            - metadata: dict containing 't' and 'color' parameters
+            """
+            data, w = make_swiss_roll(n_samples=num_points, noise=noise, random_state=random_state, hole=hole)
+    
+    
+            metadata = {'color': w}
+    
+            return t.tensor(data.astype(np.float32), device=self.device), metadata
+        
+        def s_curve(self, num_points=1000, noise=0.0, random_state=None):
+            """
+            Generate a Swiss roll dataset.
+    
+            Parameters:
+            - n_samples: int, number of sample points
+            - noise: float, standard deviation of Gaussian noise
+            - random_state: int, random seed for reproducibility
+    
+            Returns:
+            - data: ndarray of shape (n_samples, 3)
+            - metadata: dict containing 't' and 'color' parameters
+            """
+            data, w = make_s_curve(n_samples=num_points, noise=noise, random_state=random_state)
+    
+    
+            metadata = {'color': w}
+    
+            return t.tensor(data.astype(np.float32), device=self.device), metadata
+        
+        
+        def rand_unit_norm(self, num_points=1000, n_features=5, random_state=None):
+            """
+            Generate a dataset where all points have unit norm.
+    
+            Parameters:
+            - n_samples: int, number of sample points
+            - n_features: int, number of features
+            - random_state: int, random seed for reproducibility
+    
+            Returns:
+            - data: ndarray of shape (n_samples, n_features)
+            - metadata: dict containing original unnormalized data
+            """
+            np.random.seed(random_state)
+    
+            # Generate random data
+            data_raw = np.random.randn(num_points, n_features)
+    
+            # Normalize each sample to unit norm
+            norms = np.linalg.norm(data_raw, axis=1, keepdims=True)
+            data = data_raw / norms
+    
+            metadata = {}
+    
+            return t.tensor(data.astype(np.float32), device=self.device), metadata
+        
+        
+        def sparse_binary(self,num_points=1000, n_features=5, sparsity=0.3, random_state=None):
+            """
+            Generate a dataset with sparse binary features.
+    
+            Parameters:
+            - n_samples: int, number of sample points
+            - n_features: int, number of features
+            - sparsity: float, expected fraction of non-zero entries
+            - random_state: int, random seed for reproducibility
+    
+            Returns:
+            - data: ndarray of shape (n_samples, n_features) with binary entries
+            - metadata: dict containing sparsity information
+            """
+            np.random.seed(random_state)
+    
+            data = np.random.binomial(1, sparsity, size=(num_points, n_features))
+    
+            actual_sparsity = np.mean(data)
+    
+            metadata = {
+                'expected_sparsity': sparsity,
+                'actual_sparsity': actual_sparsity
+            }
+    
+            return t.tensor(data.astype(np.float32), device=self.device), metadata
+        
+        
+    
+        def multiple_gaussians(self, num_points=1000, n_dimensions=2, means=None, covariances=None, weights=None, random_state=None):
+            """
+            Generate a dataset of Gaussians with different densities.
+    
+            Parameters:
+            - n_samples: int, total number of sample points
+            - n_dimensions: int, number of dimensions for each point
+            - means: list of arrays, each array is the mean of a Gaussian component
+            - covariances: list of arrays, each array is the covariance matrix of a Gaussian component
+            - weights: list of floats, relative weights (densities) of each Gaussian component
+            - random_state: int, random seed for reproducibility
+    
+            Returns:
+            - data: ndarray of shape (n_samples, n_dimensions)
+            - metadata: dict containing component information and labels
+            """
+            np.random.seed(random_state)
+            means = [
+                [0, 0, 0],
+                [3, 3, 3],
+                [-2, 2, -2],
+                [0, -4, 1]
+            ]
+            covariances = [
+                [[1, 0, 0], [0, 1, 0], [0, 0, 1]],  # Spherical
+                [[2, 0, 0], [0, .5, 0], [0, 0, .5]],  # Elongated
+                [[1, .8, .1], [.8, 1, .6], [.1, .6, 1]],  # Correlated
+                [[.1, 0, 0], [0, .1, 0], [0, 0, .1]]  # Compact
+            ]
+            
+            
+            weights = [0.2, 0.2, 0.3, 0.3]  # Different densities
+    
+            """if means is None or covariances is None or weights is None:
+                raise ValueError("means, covariances, and weights must be provided")
+    
+            if len(means) != len(covariances) or len(means) != len(weights):
+                raise ValueError("Number of means, covariances, and weights must be the same")"""
+    
+            n_components = len(means)
+    
+            # Normalize weights
+            weights = np.array(weights) / np.sum(weights)
+    
+            # Calculate number of samples for each component
+            component_samples = np.random.multinomial(num_points, weights)
+    
+            data = []
+            labels = []
+    
+            for i in range(n_components):
+                if component_samples[i] > 0:
+                    component_data = multivariate_normal.rvs(mean=means[i], cov=covariances[i], size=component_samples[i])
+                    data.append(component_data)
+                    labels.extend([i] * component_samples[i])
+    
+            data = np.vstack(data)
+            labels = np.array(labels)
+    
+            # Shuffle the data and labels
+            shuffle_idx = np.random.permutation(num_points)
+            data = data[shuffle_idx]
+            labels = labels[shuffle_idx]
+    
+            metadata = {
+                'means': means,
+                'covariances': covariances,
+                'weights': weights,
+                'labels': labels
+            }
+    
+            return t.tensor(data.astype(np.float32), device=self.device), metadata
   </dt-code>
   
 

@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initial load
     loadData('circle2d', '0', 25, 0.1);
     loadData('3x3spokes2', '1', 3, 0.3);
+    loadData('mixgauss', '2', 15, 0.3);
+
     const colors = ['crimson','steelblue','darkgreen', 'peru', 'navy', 'olive', 'gold', 'darkviolet', 'teal']
 
 
@@ -22,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function() {
         d3.select("#feat_directions_"+ index).selectAll("*").remove();
         // Set dimensions
         const width = 100;
-        const height = 150;
+        const height = 100;
         const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 
         const svg = d3.select("#feat_directions_"+ index)
@@ -35,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function() {
             let [xExtent1,xExtent2] = d3.extent(data, d => d[0])
             let [yExtent1,yExtent2] = d3.extent(data, d => d[1])
 
-        let maxVal = (d3.max([Math.abs(xExtent1),Math.abs(xExtent2),Math.abs(yExtent1),Math.absyExtent2]))
+        let maxVal = (d3.max([Math.abs(xExtent1),Math.abs(xExtent2),Math.abs(yExtent1),Math.abs(yExtent2)]))
         // Create scales
         const xScale = d3.scaleLinear()
             .domain([-maxVal,maxVal])
@@ -135,32 +137,31 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             function updatePlot(d, l, index) {
-                const insetWidth = 100;
-                const insetHeight = 100;
+                const insetWidth = 80;
+                const insetHeight = 80;
                 const insetMargin = { top: 10, right: 10, bottom: 10, left: 10 };
 
                 function drawActiveDirections(encodedData, directions) {
                     insetPlot.selectAll("*").remove(); // Clear previous directions
-                    console.log(encodedData, directions)
 
                     let [xExtent1,xExtent2] = d3.extent(directions, d => d[0])
                     let [yExtent1,yExtent2] = d3.extent(directions, d => d[1])
 
                     let maxVal = (d3.max([Math.abs(xExtent1),Math.abs(xExtent2),Math.abs(yExtent1),Math.abs(yExtent2)]))
-
-
+                    let maxEncVal = d3.max(encodedData)
+                    
                     let scaler = 1
 
 
                     // Create scales for inset plot
                     const insetXScale = d3.scaleLinear()
                         .domain([-maxVal,maxVal])
-                        .range([0, insetWidth - insetMargin.left - insetMargin.right]);
+                        .range([0, insetWidth ]);
 
 
                     const insetYScale = d3.scaleLinear()
                         .domain([-maxVal,maxVal])
-                        .range([insetHeight - insetMargin.top - insetMargin.bottom, 0]);
+                        .range([insetHeight, 0]);
 
                     // Add border for inset plot
                     insetPlot.append("rect")
@@ -174,7 +175,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                    
                     directions.forEach((dir, i) => {
-                        const length = encodedData[i]; // Length of the direction line based on the encoded value
+                        const length = 0.8*encodedData[i]/maxEncVal; // Length of the direction line based on the encoded value
                         if (length > 0) {
                             insetPlot.append("line")
                                 .attr("x1", insetXScale(0))
@@ -195,6 +196,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 
                 const key = `${d}_${l}`;
                 makeFeatDirectionsPlot(data[key].directions, index)
+                console.log(key, data)
+
                 const reconstructed = data[key].reconstructed;
                 const encoded = data[key].encoded;
                 const transposedEncoded = d3.transpose(encoded);
@@ -342,6 +345,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 .style("text-anchor", "middle")
                 .text("Neuron number");
 
+                console.log(data)
+
                 // Add the max value bars in light grey
                 barPlot.selectAll(".max-bar")
                     .data(maxValuesDim)
@@ -354,12 +359,64 @@ document.addEventListener("DOMContentLoaded", function() {
                     .attr("height", d => height - margin.top - margin.bottom - yBarScale(d))
                     .attr("fill", "#f0f0f0")
                     .attr("stroke", "black")
-                    .attr("stroke-width", 1);
+                    .attr("stroke-width", 1)
+                    .on("mouseover", function(event, d) {
+                        const barIndex = maxValuesDim.indexOf(d);
+                        handleBarHover(barIndex, this);
+                    })
+                    .on("mouseout", handleBarHoverOut);
 
+            const colorScale = d3.scaleSequential(d3.interpolateViridis)
+                .domain([0, maxEnc]);
+
+            // Create an opacity scale
+            const opacityScale = d3.scaleLinear()
+            .domain([0, maxEnc])
+            .range([0.01, 1]); // Adjust this range as needed
+
+            let currentHoveredBar = null;
+
+
+            function handleBarHover(barIndex, barElement) {
+                         // Reset previously hovered bar, if any
+                        if (currentHoveredBar) {
+                            d3.select(currentHoveredBar).attr("stroke-width", 1);
+                        }
+                        // Highlight the current hovered bar
+                        currentHoveredBar = barElement;
+                        d3.select(currentHoveredBar).attr("stroke-width", 3);
+
+                        // Update data points color based on encoded value
+                        //dataPoints.attr("fill", (d, i) => colorScale(encoded[i][barIndex] / maxEnc));
+                        dataPoints.attr("fill", colors[barIndex % 9])
+                            .attr("opacity", (d, i) => opacityScale(encoded[i][barIndex]));
+                        // Make reconstructed points light grey with low opacity
+                        reconstructedPoints
+                            .attr("fill", "grey")
+                            .attr("opacity", 0.01);
+            
+                        // Make connecting lines thinner
+                        lines.attr("stroke-width", 0.05);
+                    }
+
+            function handleBarHoverOut() {
+                        // Reset data points to original color
+                        dataPoints
+                            .attr("fill", "lightsteelblue")
+                            .attr("opacity", 0.7);
+            
+                        // Reset reconstructed points
+                        reconstructedPoints
+                            .attr("fill", "#ff6666")
+                            .attr("opacity", 0.7);
+            
+                        // Reset connecting lines
+                        lines.attr("stroke-width", 1);
+                        d3.select(currentHoveredBar).attr("stroke-width", 1);
+                    }
                 function fillBarPlot(data, d, cmapRange) {
                     
                     yBarScale.domain(cmapRange);  // Adjust y domain based on the expected range of your data
-
 
                     barPlot.selectAll(".bar")
                         .data(data.slice(0, d))
@@ -372,7 +429,12 @@ document.addEventListener("DOMContentLoaded", function() {
                         .attr("height", d => height - margin.top - margin.bottom - yBarScale(d))
                         .attr("fill", (d, i) => colors[i%9])
                         .attr("stroke", "black")
-                        .attr("stroke-width", 1);
+                        .attr("stroke-width", 1)
+                        .on("mouseover", function(event, d) {
+                            const barIndex = maxValuesDim.indexOf(d);
+                            handleBarHover(barIndex, this);
+                        })
+                        .on("mouseout", handleBarHoverOut);
                 }
 
                 function clearBarPlot() {
