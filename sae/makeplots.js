@@ -195,8 +195,11 @@ document.addEventListener("DOMContentLoaded", function() {
                         }
                     });
                 }
-                
-                const key = k?`${d}_${l}_${k}`:`${d}_${l}`;
+                console.log(k)
+                let key = `${d}_${l}`;
+                if (k!=false){
+                    key = key+`_${k}`;
+                }
                 makeFeatDirectionsPlot(data[key].directions, index)
                 console.log(key, data)
 
