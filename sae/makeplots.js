@@ -129,13 +129,13 @@ document.addEventListener("DOMContentLoaded", function() {
             dSlider.on("input", function() {
                 currentD = dValues[+this.value];
                 d3.select("#d-value_" + index).text(currentD);
-                updatePlot(currentD, currentL, index);
+                updatePlot(currentD, currentL, currentK, index);
             });
 
             lSlider.on("input", function() {
                 currentL = lValues[+this.value];
                 d3.select("#l-value_" + index).text(currentL);
-                updatePlot(currentD, currentL, index);
+                updatePlot(currentD, currentL, currentK, index);
             });
 
             function updatePlot(d, l, k, index) {
@@ -200,6 +200,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (k!=false){
                     key = key+`_${k}`;
                 }
+                console.log(key)
                 makeFeatDirectionsPlot(data[key].directions, index)
                 console.log(key, data)
 
