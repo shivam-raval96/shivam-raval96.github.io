@@ -254,7 +254,47 @@ At stronger sparsity regularization (larger lambda) the reconstructions show the
 
 <div class="l-page"> 
   <h2>K-Sparse AEs</h2>
-  [Coming soon]
+  The main cause of shrinkage in reconstructions is the L1 penalty used to induce sparsity. A neat alternative is to directly
+  set the number of active features used for reconstruction while zeroing out the rest. The encoder is now:
+  \[
+  \mathbf{h} = \text{TopK}(W_{\text{enc}} (x - b_{\text{dec}}) )
+  \]
+  
+
+  The loss is just the MSE: 
+  \(
+L = \|\mathbf{x} - \mathbf{\hat{x}}\|^2_2 
+\)
+
+This is great! Since we do not rely on L1 penalty to induce sparsity, we have a better chance of getting good reconstructions. Let's look at the previous examples again:
+
+<div style="display: flex;">
+  <center>
+    <div class="button-container">
+      <label for="dataset-buttons"><p>Select Dataset:</p></label>
+      <button id="circle-button" class="button" onclick="loadData('circle2d', '3', 15, 0, false)">Circle</button>
+      <button id="spokes-button" class="button" onclick="loadData('3x3spokes2', '3', 15, 0, false)">Spokes</button>
+      <button id="gaussians-button" class="button" onclick="loadData('mixgauss', '3', 15, 0, false)">Gaussians</button>
+    </div>
+    <p>Learned feature directions</p>
+    <div id="feat_directions_3" style="border:1px solid black; margin:5px"></div>
+  </center>
+
+  <div>
+    <center>
+      <p><span style="color:steelblue">Original data</span> along with its <span style="color:#ff6666">reconstructions</span></p>
+      <div id="scatterplot_3" style="border:1px solid black; margin:20px"></div>
+    </center>
+  </div>
+
+  <div>
+    <center>
+      <p>Encoded activations</p>
+      <div id="barplot_3"></div>
+      <p>* Maximum value for a neuron is shown in grey. Hover on the individual bars to highlight points that have high magnitude for that dimension.</p>
+    </center>
+  </div>
+</div>
 </div>
 
 </dt-article>

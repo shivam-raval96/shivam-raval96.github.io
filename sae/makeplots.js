@@ -1,9 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
 
     // Initial load
-    loadData('circle2d', '0', 25, 0.1);
-    loadData('3x3spokes2', '1', 3, 0.3);
-    loadData('mixgauss', '2', 15, 0.3);
+    loadData('circle2d', '0', 25, 0.1, false);
+    loadData('3x3spokes2', '1', 3, 0.3, false);
+    loadData('mixgauss', '2', 15, 0.3, false);
+    loadData('kcircle2d', '3', 10, 0, 2);
+
 
     const colors = ['crimson','steelblue','darkgreen', 'peru', 'navy', 'olive', 'gold', 'darkviolet', 'teal']
 
@@ -72,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .attr("fill", (d, i) => colors[i%9])
             .attr("class", "point");
     }
-    function loadData(dataFile, index,currentD, currentL) {
+    function loadData(dataFile, index,currentD, currentL, currentK) {
         d3.json('./data/' + dataFile + '.json').then(function(data) {
             const width = 400;
             const height = 300;
@@ -118,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 .range([height, 0]);
 
             // Initialize the plot with default values
-            updatePlot(currentD, currentL, index);
+            updatePlot(currentD, currentL, currentK, index);
 
             // Sliders
             const dSlider = d3.select("#d-slider_" + index);
@@ -136,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 updatePlot(currentD, currentL, index);
             });
 
-            function updatePlot(d, l, index) {
+            function updatePlot(d, l, k, index) {
                 const insetWidth = 80;
                 const insetHeight = 80;
                 const insetMargin = { top: 10, right: 10, bottom: 10, left: 10 };
@@ -194,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     });
                 }
                 
-                const key = `${d}_${l}`;
+                const key = k?`${d}_${l}_${k}`:`${d}_${l}`;
                 makeFeatDirectionsPlot(data[key].directions, index)
                 console.log(key, data)
 
