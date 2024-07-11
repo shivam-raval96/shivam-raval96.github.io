@@ -5,7 +5,8 @@ document.addEventListener("DOMContentLoaded", function() {
     loadData('3x3spokes2', '1', 3, 0.3, false);
     loadData('mixgauss', '2', 15, 0.3, false);
     loadData('kcircle2d', '3', 10, 0, 2);
-
+    loadData('k3spokes', '4', 10, 0, 1);
+    loadData('k16spokes', '5', 10, 0, 1);
 
     const colors = ['crimson','steelblue','darkgreen', 'peru', 'navy', 'olive', 'gold', 'darkviolet', 'teal']
 

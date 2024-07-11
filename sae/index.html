@@ -289,6 +289,59 @@ This is great! Since we do not rely on L1 penalty to induce sparsity, we have a 
     </center>
   </div>
 </div>
+
+<div style="display: flex;">
+  <center>
+    <p>Learned feature directions</p>
+    <div id="feat_directions_4" style="border:1px solid black; margin:5px"></div>
+  </center>
+
+  <div>
+    <center>
+      <p><span style="color:steelblue">Original data</span> along with its <span style="color:#ff6666">reconstructions</span></p>
+      <div id="scatterplot_4" style="border:1px solid black; margin:20px"></div>
+    </center>
+  </div>
+
+  <div>
+    <center>
+      <p>Encoded activations</p>
+      <div id="barplot_4"></div>
+      <p>* Maximum value for a neuron is shown in grey. Hover on the individual bars to highlight points that have high magnitude for that dimension.</p>
+    </center>
+  </div>
+</div>
+
+<div class="l-page"> 
+  Note: This hypothesis on feature splitting may be wrong; the results are not concrete and are subject to change after more experimentation and tinckering with loss function.
+  In a vanilla SAE, if there is a harsh sparsity penalty or the SAE dimension is smaller than the data dimensionality, then the SAE can learn high-level features. 
+  The way Anthropic trains their Vanilla SAEs, the model learns this hierarchy inherently to some extent, and so a larger model would find finer-level features. This might be fine, 
+  but if one think of language as consisting of infinite concepts/features/true directions, but with sparsity that depends on the rarity of occurrence of the feature, the SAEs are being trained to find only O(10M) features amongst the full space of features, and which features they prioritize 
+  and learn might be different for these variants, since we're clamping the number of active features in some way, and it might not be clear what features they choose to learn/learn first.
+  </div>
+
+<div style="display: flex;">
+  <center>
+    <p>Learned feature directions</p>
+    <div id="feat_directions_5" style="border:1px solid black; margin:5px"></div>
+  </center>
+
+  
+  <div>
+    <center>
+      <p><span style="color:steelblue">Original data</span> along with its <span style="color:#ff6666">reconstructions</span></p>
+      <div id="scatterplot_5" style="border:1px solid black; margin:20px"></div>
+    </center>
+  </div>
+
+  <div>
+    <center>
+      <p>Encoded activations</p>
+      <div id="barplot_5"></div>
+      <p>* Maximum value for a neuron is shown in grey. Hover on the individual bars to highlight points that have high magnitude for that dimension.</p>
+    </center>
+  </div>
+</div>
 </div>
 
 </dt-article>
