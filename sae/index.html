@@ -89,11 +89,26 @@
   model that learns this reconstuction process is large and sparse enough, the basis of this model would consist of the features we are looking for!</p>
   
   <h2>Part II. Sparse Autoencoders</h2>
-  Autoencoders (AE) generally consist of an encoder and a decoder, where the encoder maps the input to a latent space <b>[make a note that this is not the latent space of the llm]</b> and the decoder reconstructs the input from this latent space.
+  <p>Autoencoders (AE) generally consist of an encoder and a decoder, where the encoder maps the input to a latent space <b>[make a note that this is not the latent space of the llm]</b> and the decoder reconstructs the input from this latent space.
   One of the key objectives of an autoencoder is to capture the most important features of the data necessary to reconstruct it. 
   A sparse autoencoder (SAE) adds a sparsity penalty (L1 loss) to the loss function to learn sparse representations. 
   We would like to understand how these models work, what sort of features they can learn, and replicate some of the phenomena observed in large models ourselves.
-  For our experiments we will train small models on synthetic data and study the trained models and the features they encode.
+  For our experiments we will train small models on synthetic data and study the trained models and the features they encode.</p>
+  <b>Make a point that the decomposition happens to an overcomplete basis (more directions than neurons)</b>
+
+  The model archetecture is very simple: the encoder is expands the high diemnsional inputs \(\mathbf{x} \in \mathbb{R}^d\), to an even higher dimension:
+  \[
+  \mathbf{h} = \text{ReLU}(W_{\text{enc}} (x - b_{\text{dec}}) + b_{\text{enc}})
+  \]
+  The decoder reconstructs the input and can be represented as:
+  \[
+  \mathbf{\hat{x}} =  W_{\text{dec}} \mathbf{h} + b_{\text{dec}}
+  \]
+
+  The loss is the sum of the error in reconstruction of the input (typically the MSE) and a sparsity penalty on L1 penalty on the activations \(\mathbf{h} \in \mathbb{R}^M\)
+  \[
+L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \mathbf{\hat{x}}\|^2_2 + \lambda \sum_{i=1}^M |h_i|
+\]  
 
   
 
