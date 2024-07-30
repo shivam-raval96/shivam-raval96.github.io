@@ -113,11 +113,11 @@ document.addEventListener('DOMContentLoaded', function() {
             points.append("circle")
                 .attr("r", 5)
                 .attr("fill", d => d.label === 1 ? "#99d0f0" : "#f296a1")
-                .attr("opacity", 0.7)
+                .attr("opacity", 0.85)
                 .style("stroke", "black");
 
     // Specify indices of the data points to show
-    const indicesToShow = [250, 100, 19, 60]; // Example indices
+    const indicesToShow = [250, 100, 305, 60]; // Example indices
 
     // Filter the data points based on specified indices
     const filteredPoints = indicesToShow.map(index => data.points[index]);
@@ -220,6 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .attr("y", (arrow.startY + arrow.endY) / 2 - 15) // Offset above the arrow
                 .attr("text-anchor", "middle")
                 .attr("fill", "black")
+                .style('font-weight', 800)
                 .text("Factual Correctness");
         }).catch(error => {
             console.error("Error loading dataset:", error);
