@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .attr("y", d => yScale(d.y) - cellHeight / 2)
                 .attr("width", cellWidth)
                 .attr("height", cellHeight)
-                .attr("fill", d => d3.interpolateRdBu(d.confidence));
+                .attr("fill", d => d3.interpolateBrBG(d.confidence));
 
             // Draw decision boundary
             svg.append("line")
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             points.append("circle")
                 .attr("r", 5)
-                .attr("fill", d => d.label === 1 ? "#99d0f0" : "#f296a1")
+                .attr("fill", d => d.label === 1 ? "#4df9ff" : "#ffc14d")
                 .attr("opacity", 0.85)
                 .style("stroke", "black");
 
@@ -185,33 +185,52 @@ document.addEventListener('DOMContentLoaded', function() {
             );
 
             //console.log(arrow)
-            // Define arrowhead marker
+            // Define the marker for the start of the line
+            // Define the marker for the start of the line (pointing inward)
             svg.append("defs").append("marker")
-                .attr("id", "arrowhead")
-                .attr("viewBox", "-0 -5 10 10")
-                .attr("refX", 8)
-                .attr("refY", 0)
-                .attr("orient", "auto")
-                .attr("markerWidth", 6)
-                .attr("markerHeight", 6)
-                .attr("xoverflow", "visible")
-                .append("svg:path")
-                .attr("d", "M 0,-5 L 10 ,0 L 0,5")
-                .attr("fill", "#000")
-                .style('z-Index',-1)
-                .style("stroke", "none");
+            .attr("id", "arrowhead-start")
+            .attr("viewBox", "-0 -5 10 10")
+            .attr("refX", 0)  // Position the start marker at the start of the line
+            .attr("refY", 0)
+            .attr("orient", "auto")
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("xoverflow", "visible")
+            .append("svg:path")
+            .attr("d", "M 0,-5 L 10 ,0 L 0,5")  // Arrowhead pointing inward
+            .attr("fill", "#000")
+            .style('z-Index', -1)
+            .style("stroke", "none");
 
-            // Draw arrow
+            // Define the marker for the end of the line (pointing outward)
+            svg.append("defs").append("marker")
+            .attr("id", "arrowhead-end")
+            .attr("viewBox", "-0 -5 10 10")
+            .attr("refX", 10)  // Position the end marker at the end of the line
+            .attr("refY", 0)
+            .attr("orient", "auto")
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("xoverflow", "visible")
+            .append("svg:path")
+            .attr("d", "M 0,0 L 10,-5 L 10,5")  // Arrowhead pointing outward
+            .attr("fill", "#000")
+            .style('z-Index', -1)
+            .style("stroke", "none");
+
+            // Draw line with markers at both ends
             svg.append("line")
-                .attr("class", "factual-correctness-arrow")
-                .attr("x1", arrow.startX)
-                .attr("y1", arrow.startY)
-                .attr("x2", arrow.endX)
-                .attr("y2", arrow.endY)
-                .attr("stroke", "black")
-                .attr("stroke-width", 2)
-                .style('z-Index',-1)
-                .attr("marker-end", "url(#arrowhead)");
+            .attr("class", "factual-correctness-arrow")
+            .attr("x1", arrow.startX)
+            .attr("y1", arrow.startY)
+            .attr("x2", arrow.endX)
+            .attr("y2", arrow.endY)
+            .attr("stroke", "black")
+            .attr("stroke-width", 2)
+            .style('z-Index', -1)
+            .attr("marker-start", "url(#arrowhead-end)")  // Apply the start marker
+            .attr("marker-end", "url(#arrowhead-start)");    // Apply the end marker
+
 
             // Add text above the arrow
             svg.append("text")
