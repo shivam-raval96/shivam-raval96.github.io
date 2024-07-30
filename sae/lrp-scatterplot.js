@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .enter()
         .append("button")
         .text(d => d)
-        .attr("class", d => d === "claims" ? "active" : "")
+        .attr("class", d => d === "cities" ? "active" : "")
         .on("click", function(event, d) {
             d3.selectAll("button").classed("active", false);
             d3.select(this).classed("active", true);
@@ -247,5 +247,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initially load the first dataset
-    loadDataset("claims");
+    loadDataset("cities");
 });
