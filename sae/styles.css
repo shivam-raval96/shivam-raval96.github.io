@@ -114,3 +114,19 @@ a:hover {
   background-color: steelblue;
   color: white;
 }
+
+.tooltip {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 10px;
+  pointer-events: none;
+}
+
+.point-text-container {
+  pointer-events: none;
+}
+
+.arrow-text {
+  fill: black;
+}

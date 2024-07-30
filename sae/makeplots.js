@@ -196,14 +196,14 @@ document.addEventListener("DOMContentLoaded", function() {
                         }
                     });
                 }
-                console.log(k)
+                //console.log(k)
                 let key = `${d}_${l}`;
                 if (k!=false){
                     key = key+`_${k}`;
                 }
-                console.log(key)
+                //console.log(key)
                 makeFeatDirectionsPlot(data[key].directions, index)
-                console.log(key, data)
+                //console.log(key, data)
 
                 const reconstructed = data[key].reconstructed;
                 const encoded = data[key].encoded;
@@ -352,7 +352,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 .style("text-anchor", "middle")
                 .text("Neuron number");
 
-                console.log(data)
+                //console.log(data)
 
                 // Add the max value bars in light grey
                 barPlot.selectAll(".max-bar")

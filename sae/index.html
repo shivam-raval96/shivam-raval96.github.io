@@ -11,6 +11,7 @@
 
   <link rel="stylesheet" href="styles.css">
   <script src="./makeplots.js"></script>
+  <script src="./lrp-scatterplot.js"></script>
 
 </head>
 
@@ -59,6 +60,22 @@
     <li>Future work & possible solutions</li>
   </ol>
   <dt-byline></dt-byline>
+  <h1>Visuals</h1>
+
+  <h2>Linear directions represent interpretable features in activations</h2>
+  This is an example of linear directions of factual correctness for some datasets from Marks and Tegmark (2023) <dt-cite key = "marks2023geometrytruthemergentlinear"></dt-cite> . The experiments are done on Gemma-2-9B-it, 
+  and an individual point corresponds to an activation from layer 35 post MLP from the model, produced using a text as input to the model. The data is visualized using the first two principal components. 
+  Note that there is more structure in the data, with data points spread across different directions. We can only try to guess what the other directions mean! 
+  SAEs offer a principled approach to decompose each datapoint into directions that correspond to the most basic features they encode, which can allow us to identify what other directions of variance correspond to.
+  
+  <div id="lrp-scatterplot"></div>
+  These clusters represent the model's notion of what it believes is true! For eg. when asked whether the fact that the The earth is big and full of air, the model responds with: That's **true**! 
+    
+  The Earth is indeed very large, and it's surrounded by a layer of gases called the atmosphere, which is what we breathe and what we call "air". 
+
+  <dt-byline></dt-byline>
+  <h1>Content</h1>
+
 
   <h2>Part I. Exposition (disentangling polysemantic neurons in llms):</h2>
   <h3>A real example</h3>
@@ -78,7 +95,7 @@
   Furthermore, since the network can learn to represent many more features than they have neurons, each neuron may contribute
   partially in representing many features at the same time. Such neurons are <i>Polysemantic</i>, 
   meaning they activate on serveral unrelated features at the same time <dt-cite key="bolukbasi2021interpretabilityillusionbert"></dt-cite>.</p>
-  
+
   <p><b>[So what?]</b>
   One of the main goals in machine learning interpretability is to identify and disentange complex representations 
   and attribute the interpretable features for transparency, control and safety. 
