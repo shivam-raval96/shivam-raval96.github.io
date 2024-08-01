@@ -183,18 +183,18 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
           \[L = \| \hat{x} - x \|^2 + \lambda \| h \|_1\]
 
           \[
-          \frac{\partial L}{\partial \hat{x}} = 2 (\hat{x} - x) + \lambda \frac{\partial \| h \|_1}{\partial \hat{x}} = 2 (\hat{x} - x) + \lambda W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h))
+          \frac{\partial L}{\partial \hat{x}} = 2 (\hat{x} - x) + \lambda \frac{\partial \| h \|_1}{\partial \hat{x}} = 2 (\hat{x} - x) + \lambda W_{\text{enc}} \cdot \text{diag}(H(W_e (x - b_{\text{dec}}) + b_{\text{dec}}))
           \]
 
           At the optimal point:
           \[
-          2 (\hat{x} - x) = - \lambda W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h))
+          2 (\hat{x} - x) = - \lambda W_{\text{enc}} \cdot \text{diag}(H(W_{\text{enc}} (x - b_{\text{dec}}) + b_{\text{enc}}))
           \]
           
   
           Rearanging, we get:
           \[
-          \hat{x} = x - \frac{\lambda W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h))}{2}
+          \hat{x} = x - \frac{\lambda W_{\text{enc}} \cdot \text{diag}(H(W_{\text{enc}} (x - b_{\text{dec}}) + b_{\text{enc}}))}{2}
           \]
 
           The reconstruction \(\hat{x}\) is shifted by a term that depends on the regularization parameter \(\lambda\) and the weights \(W_e\) and \(W_d\). This shift results in shrinkage and can even pull \(\hat{x}\) to zero in extreme cases.
