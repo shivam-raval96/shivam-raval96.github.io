@@ -175,26 +175,26 @@ L = L_{\text{reconstruction}} + \lambda L_{\text{sparsity}} = \|\mathbf{x} - \ma
   <h2>What causes feature shrinkage?</h2>
     <p><b>Case I: No \(L_1\) regularization</b> \[L = \sum \| \hat{x} - x \|^2\]
       \[
-      \frac{\partial L}{\partial x} = 2 (\hat{x} - x) \left( \frac{\partial \hat{x}}{\partial x} - 1 \right)\]
-     Minimum loss is achieved when \(\frac{\partial L}{\partial x} = 0\), or 
-        \[
-      2 (\hat{x} - x) \left( \frac{\partial \hat{x}}{\partial x} - 1 \right) = 0\]
-        The obvious optimal solution for this is \(\hat{x} = x\)</p>
+      \frac{\partial L}{\partial \hat{x}} = 2 (\hat{x} - x)\]
+     Minimum loss is achieved when \(\frac{\partial L}{\partial \hat{x}} = 0\).
+        The obvious optimal solution for this is \(\hat{x} = x\) and the reconstruction matches the input.</p>
 
         <p><b>Case II: with \(L_1\) regularization</b>
           \[L = \| \hat{x} - x \|^2 + \lambda \| h \|_1\]
 
-          \[\frac{\partial L}{\partial x} = 2 (\hat{x} - x) \left( \frac{\partial \hat{x}}{\partial x} - 1 \right) + \lambda \frac{\partial \| h \|_1}{\partial x}\]
-          At the optimal point:
           \[
-          \frac{\partial L}{\partial x} = 2 (\hat{x} - x) \left( W_d W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h)) - 1 \right) + \lambda W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h)) = 0
+          \frac{\partial L}{\partial \hat{x}} = 2 (\hat{x} - x) + \lambda \frac{\partial \| h \|_1}{\partial \hat{x}} = 2 (\hat{x} - x) + \lambda W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h))
           \]
 
+          At the optimal point:
+          \[
+          2 (\hat{x} - x) = - \lambda W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h))
+          \]
           
   
           Rearanging, we get:
           \[
-          \hat{x} = x - \frac{\lambda W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h))}{2 \left( W_d W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h)) - 1 \right)}
+          \hat{x} = x - \frac{\lambda W_e \cdot \text{diag}(H(W_e (x - b_d) + b_h))}{2}
           \]
 
           The reconstruction \(\hat{x}\) is shifted by a term that depends on the regularization parameter \(\lambda\) and the weights \(W_e\) and \(W_d\). This shift results in shrinkage and can even pull \(\hat{x}\) to zero in extreme cases.
