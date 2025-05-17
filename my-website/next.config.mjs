@@ -4,7 +4,7 @@ const nextConfig = {
   output: "export",
 
   // Set the base path to your repository name
-  basePath: "/shivam-raval96.github.io",
+  basePath: "/shivam-raval96.github.io/",
 
   // Disable server-based image optimization
   images: {
