@@ -7,9 +7,8 @@ import InteractiveBackground from "./components/InteractiveBackground";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "VISxGenAI",
-  description:
-    "Workshop on Explainable Visualizations focusing on AI techniques",
+  title: "Shivam Raval",
+  description: "Shivam's lair",
 };
 
 export default function RootLayout({ children }) {
