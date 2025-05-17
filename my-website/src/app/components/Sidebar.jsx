@@ -31,7 +31,7 @@ const Sidebar = () => {
       <div className="flex flex-col items-center">
         <div className="relative w-32 h-32 mb-4">
           <img
-            src="/shivam-raval96.github.io/headshot.jpg"
+            src="/headshot.jpg"
             alt="Profile"
             className="rounded-full object-cover w-full h-full"
           />
