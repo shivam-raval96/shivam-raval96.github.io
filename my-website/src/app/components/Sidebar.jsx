@@ -8,18 +8,26 @@ import Image from "next/image";
 
 const Sidebar = () => {
   const pathname = usePathname();
+  
+  // This helps determine if we're in production (GitHub Pages) or development
+  const basePath = process.env.NODE_ENV === 'production' ? '/shivam-raval96.github.io/' : '';
 
   const getSidebarText = () => {
     switch (pathname) {
       case "/":
+      case "/shivam-raval96.github.io/":  // Add this for GitHub Pages
         return "Researcher focused on AI interpretability and visualization";
       case "/resume":
+      case "/shivam-raval96.github.io/resume":  // Add this for GitHub Pages
         return "Experience in academia and industry";
       case "/blogs":
+      case "/shivam-raval96.github.io/blogs":  // Add this for GitHub Pages
         return "Thoughts on ML, visualization, and research";
       case "/visuals":
+      case "/shivam-raval96.github.io/visuals":  // Add this for GitHub Pages
         return "Interactive data visualizations";
       case "/projects":
+      case "/shivam-raval96.github.io/projects":  // Add this for GitHub Pages
         return "Recent research projects and collaborations";
       default:
         return "Research scientist focused on interpretable ML";
@@ -31,7 +39,8 @@ const Sidebar = () => {
       <div className="flex flex-col items-center">
         <div className="relative w-32 h-32 mb-4">
           <Image
-            src="/headshot.jpg"
+            // Add the repository name to the image path for GitHub Pages
+            src={`${basePath}/headshot.jpg`}
             alt="Profile"
             fill
             className="rounded-full object-cover"
