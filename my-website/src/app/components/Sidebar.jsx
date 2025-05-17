@@ -30,12 +30,10 @@ const Sidebar = () => {
     <div className="w-64 bg-white border-r border-gray-200 p-6 fixed h-full">
       <div className="flex flex-col items-center">
         <div className="relative w-32 h-32 mb-4">
-          <Image
-            src="/headshot.jpg"
+          <img
+            src="/shivam-raval96.github.io/headshot.jpg"
             alt="Profile"
-            fill
-            className="rounded-full object-cover"
-            priority
+            className="rounded-full object-cover w-full h-full"
           />
         </div>
         <h2 className="text-xl font-semibold text-gray-800">Shivam Raval</h2>
