@@ -5,13 +5,13 @@ import Link from "next/link";
 
 const blogPosts = [
   {
-    id: 1,
-    title: "Visualizing Neural Networks in the Browser",
-    description:
-      "An interactive exploration of neural network architectures using D3.js and React",
-    date: "2024-03-15",
-    readTime: "8 min read",
-    tags: ["Machine Learning", "Visualization", "Web Development"],
+    id: 0,
+    title: "Why SAEs fail (and why CLTs might too)",
+    description: "An interactive exploration of SAEs and CLTs",
+    date: "2025-05-15",
+    readTime: "xxx min read",
+    tags: ["Machine Learning", "Visualization", "Interpretability"],
+    link: "https://shivam-raval96.github.io/Explorable-SAE/",
   },
   {
     id: 2,
@@ -32,7 +32,7 @@ const Blogs = () => {
         {blogPosts.map((post) => (
           <Link
             key={post.id}
-            href={`/blogs/${post.id}`}
+            href={post.id == 0 ? post.link : `/blogs/${post.id}`}
             className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
           >
             <div className="p-6">

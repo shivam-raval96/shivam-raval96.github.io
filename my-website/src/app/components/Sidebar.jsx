@@ -12,7 +12,7 @@ const Sidebar = () => {
   const getSidebarText = () => {
     switch (pathname) {
       case "/":
-        return "Researcher focused on AI interpretability and visualization";
+        return "Current interests: AI interpretability and safety, high dimensional data analysis and visualization";
       case "/resume":
         return "Experience in academia and industry";
       case "/blogs":
@@ -38,10 +38,9 @@ const Sidebar = () => {
         </div>
         <h2 className="text-xl font-semibold text-gray-800">Shivam Raval</h2>
         <p className="text-sm text-gray-600 mt-2 mb-6">
-          Physicist. Eternally curious.
-        </p>
-        <p className="text-sm text-gray-600 mb-8 text-center">
-          {getSidebarText()}
+          AI Research Scientist. <br/>
+          Generalist.  <br/>
+          Eternally curious.
         </p>
 
         <div className="flex space-x-4 mb-8">
@@ -58,6 +57,9 @@ const Sidebar = () => {
             <Linkedin className="w-5 h-5 text-gray-600 hover:text-teal-600 cursor-pointer" />
           </Link>
         </div>
+        <p className="text-sm text-gray-600 mb-8 text-left">
+          {getSidebarText()}
+        </p>
         <div className="email-at">
           <p>
             Feel free to get in touch. My email is{" "}

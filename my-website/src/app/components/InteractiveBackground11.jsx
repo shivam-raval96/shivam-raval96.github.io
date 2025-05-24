@@ -1,18 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 
-const InteractiveBackground = () => {
+const BackgroundSwitcher = () => {
   const canvasRef = useRef(null);
   const timeoutRef = useRef(null);
   const animationRef = useRef(null);
   const [currentBackground, setCurrentBackground] = useState('particles');
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Particle Flow Field (your original)
   const ParticleFlowField = (canvas, ctx) => {
@@ -418,250 +412,6 @@ const InteractiveBackground = () => {
     };
   };
 
-  // Constellation Stars
-  const ConstellationStars = (canvas, ctx) => {
-    let stars = [];
-    let mouseX = canvas.width / 2;
-    let mouseY = canvas.height / 2;
-
-    class Star {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2 + 0.5;
-        this.twinkle = Math.random() * Math.PI * 2;
-        this.twinkleSpeed = Math.random() * 0.02 + 0.005;
-        this.brightness = Math.random() * 0.8 + 0.2;
-      }
-
-      update() {
-        this.twinkle += this.twinkleSpeed;
-      }
-
-      draw() {
-        const alpha = this.brightness * (Math.sin(this.twinkle) * 0.3 + 0.7);
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200, 200, 255, ${alpha})`;
-        ctx.fill();
-      }
-    }
-
-    const initStars = () => {
-      stars = Array.from({ length: 200 }, () => new Star());
-    };
-
-    const handleMouseMove = (event) => {
-      mouseX = event.clientX;
-      mouseY = event.clientY;
-    };
-
-    const animate = () => {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Draw constellation lines
-      stars.forEach((star, i) => {
-        stars.slice(i + 1).forEach(otherStar => {
-          const distance = Math.sqrt(
-            (star.x - otherStar.x) ** 2 + (star.y - otherStar.y) ** 2
-          );
-          if (distance < 100) {
-            const alpha = Math.max(0, (100 - distance) / 100 * 0.2);
-            ctx.beginPath();
-            ctx.moveTo(star.x, star.y);
-            ctx.lineTo(otherStar.x, otherStar.y);
-            ctx.strokeStyle = `rgba(150, 150, 200, ${alpha})`;
-            ctx.lineWidth = 1;
-            ctx.stroke();
-          }
-        });
-      });
-
-      stars.forEach(star => {
-        star.update();
-        star.draw();
-      });
-
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    initStars();
-    animate();
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  };
-
-  // Fireflies
-  const Fireflies = (canvas, ctx) => {
-    let fireflies = [];
-    let mouseX = canvas.width / 2;
-    let mouseY = canvas.height / 2;
-
-    class Firefly {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 2;
-        this.vy = (Math.random() - 0.5) * 2;
-        this.size = Math.random() * 3 + 2;
-        this.glow = Math.random() * Math.PI * 2;
-        this.glowSpeed = Math.random() * 0.05 + 0.02;
-        this.hue = Math.random() * 60 + 30; // Yellow to orange
-      }
-
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.glow += this.glowSpeed;
-
-        // Mouse attraction
-        const dx = mouseX - this.x;
-        const dy = mouseY - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 200) {
-          const force = (200 - distance) / 200 * 0.3;
-          this.vx += (dx / distance) * force * 0.1;
-          this.vy += (dy / distance) * force * 0.1;
-        }
-
-        // Boundary wrapping
-        if (this.x < 0) this.x = canvas.width;
-        if (this.x > canvas.width) this.x = 0;
-        if (this.y < 0) this.y = canvas.height;
-        if (this.y > canvas.height) this.y = 0;
-
-        // Damping
-        this.vx *= 0.99;
-        this.vy *= 0.99;
-      }
-
-      draw() {
-        const intensity = (Math.sin(this.glow) + 1) * 0.5;
-        const alpha = intensity * 0.8 + 0.2;
-        
-        // Glow effect
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${this.hue}, 100%, 60%, ${alpha * 0.1})`;
-        ctx.fill();
-
-        // Core
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${this.hue}, 100%, 80%, ${alpha})`;
-        ctx.fill();
-      }
-    }
-
-    const initFireflies = () => {
-      fireflies = Array.from({ length: 80 }, () => new Firefly());
-    };
-
-    const handleMouseMove = (event) => {
-      mouseX = event.clientX;
-      mouseY = event.clientY;
-    };
-
-    const animate = () => {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      fireflies.forEach(firefly => {
-        firefly.update();
-        firefly.draw();
-      });
-
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    initFireflies();
-    animate();
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  };
-
-  // Spiral Galaxy
-  const SpiralGalaxy = (canvas, ctx) => {
-    let particles = [];
-    let time = 0;
-    let mouseX = canvas.width / 2;
-    let mouseY = canvas.height / 2;
-
-    class SpiralParticle {
-      constructor() {
-        this.angle = Math.random() * Math.PI * 2;
-        this.radius = Math.random() * 300 + 50;
-        this.speed = Math.random() * 0.01 + 0.005;
-        this.size = Math.random() * 2 + 0.5;
-        this.centerX = canvas.width / 2;
-        this.centerY = canvas.height / 2;
-        this.armOffset = Math.random() * Math.PI * 2;
-      }
-
-      update() {
-        this.angle += this.speed;
-        
-        // Spiral arms
-        const armAngle = this.angle + this.armOffset + (this.radius * 0.01);
-        this.x = this.centerX + Math.cos(armAngle) * this.radius;
-        this.y = this.centerY + Math.sin(armAngle) * this.radius;
-
-        // Mouse influence
-        const dx = mouseX - this.centerX;
-        const dy = mouseY - this.centerY;
-        this.centerX += dx * 0.01;
-        this.centerY += dy * 0.01;
-      }
-
-      draw() {
-        const alpha = Math.max(0, 1 - this.radius / 350);
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(150, 100, 255, ${alpha * 0.6})`;
-        ctx.fill();
-      }
-    }
-
-    const initParticles = () => {
-      particles = Array.from({ length: 800 }, () => new SpiralParticle());
-    };
-
-    const handleMouseMove = (event) => {
-      mouseX = event.clientX;
-      mouseY = event.clientY;
-    };
-
-    const animate = () => {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      particles.forEach(particle => {
-        particle.update();
-        particle.draw();
-      });
-
-      time++;
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    initParticles();
-    animate();
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  };
-
-  
-
   // Matrix Rain
   const MatrixRain = (canvas, ctx) => {
     const fontSize = 14;
@@ -731,15 +481,6 @@ const InteractiveBackground = () => {
       case 'matrix':
         cleanup = MatrixRain(canvas, ctx);
         break;
-      case 'constellation':
-        cleanup = ConstellationStars(canvas, ctx);
-        break;
-      case 'fireflies':
-        cleanup = Fireflies(canvas, ctx);
-        break;
-      case 'spiral':
-        cleanup = SpiralGalaxy(canvas, ctx);
-        break;
       default:
         cleanup = () => {};
     }
@@ -759,59 +500,56 @@ const InteractiveBackground = () => {
     { id: 'neural', name: 'Neural', icon: '🔗' },
     { id: 'geometric', name: 'Geometric', icon: '◼️' },
     { id: 'waves', name: 'Waves', icon: '🌊' },
-    { id: 'matrix', name: 'Matrix', icon: '🕶️' },
-    { id: 'constellation', name: 'Stars', icon: '⭐' },
-    { id: 'fireflies', name: 'Fireflies', icon: '🪲' },
-    { id: 'spiral', name: 'Spiral', icon: '🌀' },
+    { id: 'matrix', name: 'Matrix', icon: '💚' }
   ];
 
-  const BackgroundSwitcher = () => (
-    <div 
-      className="fixed bottom-6 left-1/2 transform -translate-x-1/2 pointer-events-auto" 
-      style={{ zIndex: 99999 }}
-    >
-      <div className="flex gap-1 bg-white bg-opacity-95 backdrop-blur-sm rounded-full p-1 shadow-xl border border-gray-200">
-        {backgrounds.map((bg) => (
-          <button
-            key={bg.id}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setCurrentBackground(bg.id);
-              console.log('Clicked:', bg.name); // Debug log
-            }}
-            className={`
-              px-2 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer
-              ${currentBackground === bg.id 
-                ? 'bg-gray-900 text-white shadow-md' 
-                : 'bg-transparent text-gray-700 hover:bg-gray-100'
-              }
-            `}
-            title={bg.name}
-            style={{ pointerEvents: 'auto', position: 'relative', zIndex: 1 }}
-          >
-            <span className="text-xs">{bg.icon}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
   return (
-    <>
-      {/* Background Canvas */}
+    <div className="relative w-full h-screen">
       {currentBackground !== 'none' && (
         <canvas 
           ref={canvasRef} 
-          className="absolute inset-0 w-full h-full pointer-events-none" 
+          className="fixed top-0 left-0 w-full h-full pointer-events-none" 
+          style={{ zIndex: -1 }}
           aria-hidden="true"
         />
       )}
       
-      {/* Background Switcher - Rendered in portal at body level */}
-      {mounted && createPortal(<BackgroundSwitcher />, document.body)}
-    </>
+      {/* Sample content */}
+      <div className="relative z-10 flex items-center justify-center h-full">
+        <div className="text-center p-8 bg-white bg-opacity-90 rounded-lg shadow-lg backdrop-blur-sm">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            Interactive Backgrounds
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Choose a background animation below
+          </p>
+        </div>
+      </div>
+
+      {/* Background switcher */}
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2" style={{ zIndex: 9999 }}>
+        <div className="flex gap-2 bg-white bg-opacity-90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+          {backgrounds.map((bg) => (
+            <button
+              key={bg.id}
+              onClick={() => setCurrentBackground(bg.id)}
+              className={`
+                px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
+                ${currentBackground === bg.id 
+                  ? 'bg-gray-900 text-white shadow-md' 
+                  : 'bg-transparent text-gray-700 hover:bg-gray-100'
+                }
+              `}
+              title={bg.name}
+            >
+              <span className="mr-1">{bg.icon}</span>
+              {bg.name}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default InteractiveBackground;
+export default BackgroundSwitcher;
