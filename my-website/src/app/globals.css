@@ -1,29 +1,105 @@
 @import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ── Class-based dark mode for Tailwind v4 ── */
+@variant dark (&:where(.dark, .dark *));
 
+/* ── Design tokens ── */
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
-  --primary-color: #e0e8f5;
-  --border-color: #c1d1ea;
-  --text-color: #333333;
-  --link-color: #0066cc;
+  --bg:          #f6f7f9;
+  --surface:     #ffffff;
+  --surface-2:   #f0f2f6;
+  --border:      #e2e6ed;
+  --text:        #0f172a;
+  --muted:       #64748b;
+  --accent:      #6366f1;
+  --accent-2:    #818cf8;
+  --accent-dim:  #eef2ff;
+  --accent-text: #4338ca;
+  --award-bg:    #fffbeb;
+  --award-text:  #92400e;
+  --sidebar-w:   220px;
 }
+
+.dark {
+  --bg:          #09090c;
+  --surface:     #111118;
+  --surface-2:   #1a1a24;
+  --border:      #26263a;
+  --text:        #f1f5f9;
+  --muted:       #8892a4;
+  --accent:      #818cf8;
+  --accent-2:    #a5b4fc;
+  --accent-dim:  #1e1b4b;
+  --accent-text: #a5b4fc;
+  --award-bg:    #1c1300;
+  --award-text:  #fbbf24;
+}
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
-  color: var(--text-color);
-  background: white;
-  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: background 0.2s ease, color 0.2s ease;
+  -webkit-font-smoothing: antialiased;
 }
 
-.image-placeholder {
-  background-color: #e0e0e0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: #666;
+/* ── Utility classes ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.875rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
+
+.card-hover:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-dim);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  background: var(--accent-dim);
+  color: var(--accent-text);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+}
+
+.award-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--award-bg);
+  color: var(--award-text);
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+}
+
+.section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }

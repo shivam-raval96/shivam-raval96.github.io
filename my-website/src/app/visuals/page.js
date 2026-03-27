@@ -1,53 +1,44 @@
-"use client";
-
-import React from "react";
 import Link from "next/link";
+import { visuals } from "../data";
 
-const visualPosts = [
-  {
-    id: "attractor",
-    title: "Some strange attractors",
-    description: "An interactive exploration of non-linear dynamics and chaos",
-    date: "2024-03-15",
-    tags: ["Machine Learning", "Visualization", "Web Development"],
-  },
-];
-
-const Visuals = () => {
+export default function Visuals() {
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">Visuals</h1>
-      <div className="grid gap-6">
-        {visualPosts.map((post) => (
-          <Link
-            key={post.id}
-            href={`/visuals/${post.id}`}
-            className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-          >
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  {post.title}
-                </h2>
-              </div>
-              <p className="text-gray-600 mb-4">{post.description}</p>
-              <div className="flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-sm"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <div className="text-sm text-gray-500 mt-4">{post.date}</div>
-            </div>
-          </Link>
-        ))}
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-lg font-semibold" style={{ color: "var(--text)" }}>
+          Visuals
+        </h1>
+        <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
+          Interactive visualizations and generative experiments.
+        </p>
       </div>
+
+      {visuals.map((item) => (
+        <Link
+          key={item.id}
+          href={`/visuals/${item.id}`}
+          className="card card-hover flex flex-col gap-3 p-5"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+              {item.title}
+            </h2>
+            <span className="text-xs shrink-0" style={{ color: "var(--muted)" }}>
+              {item.date}
+            </span>
+          </div>
+          <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
+            {item.description}
+          </p>
+          <div className="flex flex-wrap gap-1.5 mt-auto pt-1">
+            {item.tags.map((tag) => (
+              <span key={tag} className="tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </Link>
+      ))}
     </div>
   );
-};
-
-export default Visuals;
+}

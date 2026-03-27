@@ -1,65 +1,51 @@
-"use client";
-
-import React from "react";
 import Link from "next/link";
+import { blogs } from "../data";
 
-const blogPosts = [
-  {
-    id: 0,
-    title: "Why SAEs fail (and why CLTs might too)",
-    description: "An interactive exploration of SAEs and CLTs",
-    date: "2025-05-15",
-    readTime: "xxx min read",
-    tags: ["Machine Learning", "Visualization", "Interpretability"],
-    link: "https://shivam-raval96.github.io/Explorable-SAE/",
-  },
-  {
-    id: 2,
-    title: "The Future of Interactive Academic Papers",
-    description:
-      "How interactive visualizations are changing the way we communicate research",
-    date: "2024-02-28",
-    readTime: "12 min read",
-    tags: ["Research", "Academic Writing", "Interactive Media"],
-  },
-];
-
-const Blogs = () => {
+export default function Blogs() {
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">Blog Posts</h1>
-      <div className="grid gap-6">
-        {blogPosts.map((post) => (
-          <Link
-            key={post.id}
-            href={post.id == 0 ? post.link : `/blogs/${post.id}`}
-            className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-          >
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  {post.title}
-                </h2>
-                <span className="text-sm text-gray-500">{post.readTime}</span>
-              </div>
-              <p className="text-gray-600 mb-4">{post.description}</p>
-              <div className="flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-sm"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <div className="text-sm text-gray-500 mt-4">{post.date}</div>
-            </div>
-          </Link>
-        ))}
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-lg font-semibold" style={{ color: "var(--text)" }}>
+          Writing
+        </h1>
+        <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
+          Essays, explorables, and research write-ups.
+        </p>
       </div>
+
+      {blogs.map((post) => (
+        <Link
+          key={post.id}
+          href={post.external ? post.link : `/blogs/${post.id}`}
+          target={post.external ? "_blank" : undefined}
+          rel={post.external ? "noopener noreferrer" : undefined}
+          className="card card-hover flex flex-col gap-3 p-5"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <h2 className="text-sm font-semibold leading-snug" style={{ color: "var(--text)" }}>
+              {post.title}
+            </h2>
+            <span className="text-xs shrink-0" style={{ color: "var(--muted)" }}>
+              {post.readTime}
+            </span>
+          </div>
+          <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
+            {post.description}
+          </p>
+          <div className="flex items-center justify-between mt-auto pt-1">
+            <div className="flex flex-wrap gap-1.5">
+              {post.tags.map((tag) => (
+                <span key={tag} className="tag">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <span className="text-xs" style={{ color: "var(--muted)" }}>
+              {post.date}
+            </span>
+          </div>
+        </Link>
+      ))}
     </div>
   );
-};
-
-export default Blogs;
+}

@@ -1,76 +1,93 @@
 "use client";
 
 import React from "react";
-import { usePathname } from "next/navigation";
-import { Mail, Github, Twitter, Linkedin } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { Mail, Github, Linkedin, BookOpen } from "lucide-react";
+import { profile } from "../data";
 
-const Sidebar = () => {
-  const pathname = usePathname();
+const Sidebar = () => (
+  <aside
+    style={{ width: "var(--sidebar-w)", borderRight: "1px solid var(--border)" }}
+    className="fixed h-full flex-shrink-0 flex flex-col items-center px-5 py-8 gap-5"
+    aria-label="Sidebar"
+  >
+    {/* Avatar */}
+    <img
+      src={profile.headshot}
+      alt={profile.name}
+      className="w-20 h-20 rounded-full object-cover ring-2"
+      style={{ ringColor: "var(--border)" }}
+    />
 
-  const getSidebarText = () => {
-    switch (pathname) {
-      case "/":
-        return "Current interests: AI interpretability and safety, high dimensional data analysis and visualization";
-      case "/resume":
-        return "Experience in academia and industry";
-      case "/blogs":
-        return "Thoughts on ML, visualization, and research";
-      case "/visuals":
-        return "Interactive data visualizations";
-      case "/projects":
-        return "Recent research projects and collaborations";
-      default:
-        return "Research scientist focused on interpretable ML";
-    }
-  };
-
-  return (
-    <div className="w-64 bg-white border-r border-gray-200 p-6 fixed h-full">
-      <div className="flex flex-col items-center">
-        <div className="relative w-32 h-32 mb-4">
-          <img
-            src="/headshot.jpg"
-            alt="Profile"
-            className="rounded-full object-cover w-full h-full"
-          />
-        </div>
-        <h2 className="text-xl font-semibold text-gray-800">Shivam Raval</h2>
-        <p className="text-sm text-gray-600 mt-2 mb-6">
-          AI Research Scientist. <br/>
-          Generalist.  <br/>
-          Eternally curious.
-        </p>
-
-        <div className="flex space-x-4 mb-8">
-          <Link href="mailto:sraval@g.harvard.edu" aria-label="Email">
-            <Mail className="w-5 h-5 text-gray-600 hover:text-teal-600 cursor-pointer" />
-          </Link>
-          <Link href="https://github.com/shivam-raval96" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-            <Github className="w-5 h-5 text-gray-600 hover:text-teal-600 cursor-pointer" />
-          </Link>
-          <Link href="https://twitter.com/yourusername" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-            <Twitter className="w-5 h-5 text-gray-600 hover:text-teal-600 cursor-pointer" />
-          </Link>
-          <Link href="https://www.linkedin.com/in/shivam-raval-27820484/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-            <Linkedin className="w-5 h-5 text-gray-600 hover:text-teal-600 cursor-pointer" />
-          </Link>
-        </div>
-        <p className="text-sm text-gray-600 mb-8 text-left">
-          {getSidebarText()}
-        </p>
-        <div className="email-at">
-          <p>
-            Feel free to get in touch. My email is{" "}
-            <Link href="mailto:sraval@g.harvard.edu">
-              sraval@g.harvard.edu
-            </Link>
-          </p>
-        </div>
-      </div>
+    {/* Name + title */}
+    <div className="text-center">
+      <p className="font-semibold text-sm" style={{ color: "var(--text)" }}>
+        {profile.name}
+      </p>
+      <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+        {profile.title}
+      </p>
+      <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+        {profile.tagline}
+      </p>
     </div>
-  );
-};
+
+    {/* Social icons */}
+    <div className="flex gap-3">
+      {[
+        { href: `mailto:${profile.email}`, icon: Mail, label: "Email" },
+        { href: profile.github, icon: Github, label: "GitHub" },
+        { href: profile.linkedin, icon: Linkedin, label: "LinkedIn" },
+        { href: profile.scholar, icon: BookOpen, label: "Google Scholar" },
+      ].map(({ href, icon: Icon, label }) => (
+        <Link
+          key={label}
+          href={href}
+          target={href.startsWith("mailto") ? undefined : "_blank"}
+          rel="noopener noreferrer"
+          aria-label={label}
+          className="transition-colors"
+          style={{ color: "var(--muted)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--muted)")}
+        >
+          <Icon size={16} />
+        </Link>
+      ))}
+    </div>
+
+    <hr className="w-full" style={{ borderColor: "var(--border)" }} />
+
+    {/* Interests */}
+    <div className="w-full">
+      <p className="section-label">Interests</p>
+      <ul className="space-y-1.5">
+        {profile.interests.map((interest) => (
+          <li
+            key={interest}
+            className="text-xs leading-snug"
+            style={{ color: "var(--muted)" }}
+          >
+            {interest}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    {/* Spacer + email */}
+    <div className="mt-auto w-full">
+      <p className="text-xs" style={{ color: "var(--muted)" }}>
+        Get in touch:{" "}
+        <Link
+          href={`mailto:${profile.email}`}
+          className="transition-colors"
+          style={{ color: "var(--accent-text)" }}
+        >
+          {profile.email}
+        </Link>
+      </p>
+    </div>
+  </aside>
+);
 
 export default Sidebar;
